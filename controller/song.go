@@ -265,6 +265,15 @@ func SetupSongController(group *gin.RouterGroup, db *gorm.DB) error {
 			return
 		}
 
+		// if the bitrate is 0 or the same as the original file, use the original file
+		useOriginalFile := false
+		if bitrate > 0 && song.FFProbeInfo != "" {
+			info, err := ffmpeg.FromString(song.FFProbeInfo)
+			if err == nil && bitrate/1000 == info.Format.BitRate.Uint64Or(0)/1000 {
+				useOriginalFile = true
+			}
+		}
+
 		filename := path.Join(env.StaticFolder, song.Filename)
 
 		// iOS will treat this as streaming when converting to mp3 on the fly
@@ -278,7 +287,7 @@ func SetupSongController(group *gin.RouterGroup, db *gorm.DB) error {
 		//}
 		//context.Writer.Flush()
 
-		if bitrate <= 0 {
+		if useOriginalFile || bitrate <= 0 {
 			file, err := os.Open(filename)
 			if err != nil {
 				gocrud.MakeErrorResponse(context, gocrud.RestCoder.InternalServerError(), err)

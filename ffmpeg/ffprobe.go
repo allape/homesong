@@ -41,9 +41,9 @@ type FFProbeFormat struct {
 	FormatName     string `json:"format_name"`
 	FormatLongName string `json:"format_long_name"`
 	StartTime      string `json:"start_time"`
-	Duration       string `json:"duration"`
-	Size           string `json:"size"`
-	BitRate        string `json:"bit_rate"`
+	Duration       Number `json:"duration"`
+	Size           Number `json:"size"`
+	BitRate        Number `json:"bit_rate"`
 	ProbeScore     int    `json:"probe_score"`
 	Tags           any    `json:"tags"`
 }
@@ -51,6 +51,15 @@ type FFProbeFormat struct {
 type FFProbeJson struct {
 	Streams []FFProbeStream `json:"streams"`
 	Format  FFProbeFormat   `json:"format"`
+}
+
+func FromString(info string) (*FFProbeJson, error) {
+	var ffprobe FFProbeJson
+	err := json.Unmarshal([]byte(info), &ffprobe)
+	if err != nil {
+		return nil, err
+	}
+	return &ffprobe, nil
 }
 
 func FFProbe(file string) (*FFProbeJson, string, error) {
@@ -78,11 +87,7 @@ func FFProbeReader(reader io.Reader) (*FFProbeJson, string, error) {
 
 	l.Debug().Println(string(output))
 
-	var ffprobe FFProbeJson
-	err = json.Unmarshal(output, &ffprobe)
-	if err != nil {
-		return nil, "", err
-	}
+	ffprobe, err := FromString(string(output))
 
-	return &ffprobe, string(output), nil
+	return ffprobe, string(output), nil
 }
