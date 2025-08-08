@@ -5,13 +5,6 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
-	"github.com/allape/gocrud"
-	"github.com/allape/homesong/env"
-	"github.com/allape/homesong/ffmpeg"
-	"github.com/allape/homesong/model"
-	"github.com/gin-gonic/gin"
-	"github.com/h2non/filetype"
-	"gorm.io/gorm"
 	"io"
 	"net/http"
 	"net/url"
@@ -21,6 +14,14 @@ import (
 	"strings"
 	"sync"
 	"unicode"
+
+	"github.com/allape/gocrud"
+	"github.com/allape/homesong/env"
+	"github.com/allape/homesong/ffmpeg"
+	"github.com/allape/homesong/model"
+	"github.com/gin-gonic/gin"
+	"github.com/h2non/filetype"
+	"gorm.io/gorm"
 )
 
 // region Credits: github.com/gin-gonic/gin@v1.10.0/context.go:1097
@@ -265,15 +266,6 @@ func SetupSongController(group *gin.RouterGroup, db *gorm.DB) error {
 			return
 		}
 
-		// if the bitrate is 0 or the same as the original file, use the original file
-		useOriginalFile := false
-		if bitrate > 0 && song.FFProbeInfo != "" {
-			info, err := ffmpeg.FromString(song.FFProbeInfo)
-			if err == nil && bitrate/1000 == info.Format.BitRate.Uint64Or(0)/1000 {
-				useOriginalFile = true
-			}
-		}
-
 		filename := path.Join(env.StaticFolder, song.Filename)
 
 		// iOS will treat this as streaming when converting to mp3 on the fly
@@ -287,7 +279,7 @@ func SetupSongController(group *gin.RouterGroup, db *gorm.DB) error {
 		//}
 		//context.Writer.Flush()
 
-		if useOriginalFile || bitrate <= 0 {
+		if bitrate <= 0 {
 			file, err := os.Open(filename)
 			if err != nil {
 				gocrud.MakeErrorResponse(context, gocrud.RestCoder.InternalServerError(), err)
