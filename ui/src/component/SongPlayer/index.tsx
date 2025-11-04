@@ -144,7 +144,12 @@ export default function SongPlayer({
   const [loop, loopRef, setLoop] = useProxy<LoopType>("shuffle");
 
   const bitRates = useBitRates();
-  const [bitRate, , setBitRate] = useProxy<BitRate>(bitRates[0].value);
+  const [bitRate, setBitRate] = useState<BitRate>(() =>
+    /** Use converted .mp3 file on iOS device which can NOT play .FLAC file. **/
+    navigator.userAgent.includes("iPhone")
+      ? bitRates[1].value
+      : bitRates[0].value,
+  );
 
   const handleAudioOk = useCallback(
     (audio: HTMLAudioElement | null) => {
@@ -160,7 +165,6 @@ export default function SongPlayer({
   }, [isMobile]);
 
   useEffect(() => {
-    // FIXME: use touch event to avoid iOS devices
     if (document.ontouchstart === null) {
       return;
     }
