@@ -67,6 +67,7 @@ export async function fillSongsWithCollections(
       1,
       collectionIds.length,
       {
+        deleted: false,
         in_id: collectionIds,
       },
     );

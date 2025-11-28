@@ -1,8 +1,8 @@
 # Home Song
 
-Song Management for Home NAS.  
-And the default UI is not designed for "to client" usage, more ERP style.
-Client usages should be integrated with some authentication system.
+Song/Music Management for Home NAS.
+
+The UI is not designed for "to client" usage, more like ERP style.
 
 ## Screenshots
 
@@ -14,7 +14,7 @@ Client usages should be integrated with some authentication system.
 
 ### Start
 
-All available images are
+All available docker images are
 in [https://github.com/allape/homesong/pkgs/container/homesong](https://github.com/allape/homesong/pkgs/container/homesong).
 
 #### MySQL Mode
