@@ -41,6 +41,8 @@ export interface ISongWithCollections extends ISong {
   _nonArtistNames?: string;
   _nonArtistNameArr?: string[];
   _nonArtistIds?: ICollection["id"][];
+
+  _crowdedSingers?: boolean; // when the count of singers is more than 3
 }
 
 export async function fillSongsWithCollections(
@@ -193,6 +195,8 @@ export async function fillSongsWithCollections(
       _nonArtistIds: nonArtistIds,
       _nonArtistNameArr: nonArtistNames,
       _nonArtistNames: nonArtistNames.join(", "),
+
+      _crowdedSingers: singerIds.length > 3,
     };
   });
 }

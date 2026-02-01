@@ -79,6 +79,7 @@ export default {
       loadingLyrics: "加载歌词中",
       noLyrics: "暂无歌词",
       search: "搜索歌曲名称",
+      multipleSingers: "群星",
       loopType: {
         shuffle: "随机播放",
         list: "列表循环",

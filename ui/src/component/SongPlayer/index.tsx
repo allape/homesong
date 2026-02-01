@@ -412,6 +412,18 @@ export default function SongPlayer({
 
   const isKaraokeMode = view === "lyrics";
 
+  const title = useMemo(() => {
+    if (song?._crowdedSingers) {
+      return `${t("player.multipleSingers")} - ${song.name}`;
+    }
+
+    if (song?._name) {
+      return song._name;
+    }
+
+    return t("player.name");
+  }, [song, t]);
+
   return (
     <Card
       tabIndex={0}
@@ -434,7 +446,7 @@ export default function SongPlayer({
             className={styles.name}
             onClick={scrollToCurrentSong}
           >
-            {song ? song._name : t("player.name")}
+            {title}
             {layout === "collapsed" && playing && !isMobile && (
               <MiniProgressBar current={current / 1000} duration={duration} />
             )}

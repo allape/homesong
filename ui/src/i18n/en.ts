@@ -79,6 +79,7 @@ export default {
       loadingLyrics: "Loading Lyrics",
       noLyrics: "No Lyrics",
       search: "Search Song by Name",
+      multipleSingers: "Multiple Singers",
       loopType: {
         shuffle: "Shuffle",
         list: "List Loop",
