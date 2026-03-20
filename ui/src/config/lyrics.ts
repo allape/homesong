@@ -7,7 +7,7 @@ export const LyricsCreatorDocURL =
   "https://github.com/allape/React-Lyrics";
 
 export const LyricsRemoteTouchpadMQTTURL =
-  import.meta.env.VITE_LYRICS_REMOTE_TOUCHPAD_MQTT_URL || "http://127.0.0.1:8080/";
+  import.meta.env.VITE_LYRICS_REMOTE_TOUCHPAD_MQTT_URL || "mqtt://127.0.0.1:8080/";
 
 export const LyricsRemoteTouchpadMQTTClientID =
   import.meta.env.VITE_LYRICS_REMOTE_TOUCHPAD_MQTT_CLIENT_ID || "1234";
