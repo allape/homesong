@@ -71,7 +71,11 @@ import LyricsSelector, {
 } from "../../component/LyricsSelector";
 import SongPlayer from "../../component/SongPlayer";
 import WordInput from "../../component/WordInput";
-import { LyricsCreatorURL } from "../../config/lyrics.ts";
+import {
+  LyricsCreatorURL,
+  LyricsRemoteTouchpadMQTTClientID,
+  LyricsRemoteTouchpadMQTTURL,
+} from "../../config/lyrics.ts";
 import { ICollection } from "../../model/collection.ts";
 import { ILyrics } from "../../model/lyrics.ts";
 import { ISongSearchParams } from "../../model/song.ts";
@@ -578,6 +582,13 @@ export default function Song(): ReactElement {
     }
 
     const u = new URL(LyricsCreatorURL);
+
+    u.searchParams.set("remoteTouchpadURL", LyricsRemoteTouchpadMQTTURL);
+    u.searchParams.set(
+      "remoteTouchpadClientID",
+      LyricsRemoteTouchpadMQTTClientID,
+    );
+
     u.searchParams.set(
       "src",
       URL.parse(
