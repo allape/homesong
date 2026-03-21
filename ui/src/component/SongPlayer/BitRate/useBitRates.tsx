@@ -13,6 +13,10 @@ export default function useBitRates(): ILV<BitRate>[] {
         label: t("player.bitRate.original"),
       },
       {
+        value: 320_000,
+        label: t("player.bitRate.320k"),
+      },
+      {
         value: 128_000,
         label: t("player.bitRate.128k"),
       },
