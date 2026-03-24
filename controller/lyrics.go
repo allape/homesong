@@ -1,12 +1,13 @@
 package controller
 
 import (
+	"net/http"
+	"strings"
+
 	"github.com/allape/gocrud"
 	"github.com/allape/homesong/model"
 	"github.com/gin-gonic/gin"
 	"gorm.io/gorm"
-	"net/http"
-	"strings"
 )
 
 func SetupLyricsController(group *gin.RouterGroup, db *gorm.DB) error {
@@ -14,6 +15,7 @@ func SetupLyricsController(group *gin.RouterGroup, db *gorm.DB) error {
 		DefaultPageSize: DefaultPageSize,
 		SearchHandlers: map[string]gocrud.SearchHandler{
 			"like_name":         gocrud.KeywordLike("name", nil),
+			"like_searchText":   gocrud.KeywordLike("search_text", nil),
 			"in_id":             gocrud.KeywordIDIn("id", gocrud.OverflowedArrayTrimmerFilter[gocrud.ID](DefaultPageSize)),
 			"deleted":           gocrud.NewSoftDeleteSearchHandler("lyrics"),
 			"orderBy_index":     gocrud.SortBy("index"),

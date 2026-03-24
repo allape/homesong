@@ -63,6 +63,7 @@ export default {
       fromStandardLRC: "从标准 LRC 解析",
       howToMakeLRCPLyrics: "如何制作 .lrcp 歌词？",
       fileIsTooLarge: "文件过大，不像是个文本文件",
+      searchText: "搜索文本",
     },
     player: {
       name: "播放器",

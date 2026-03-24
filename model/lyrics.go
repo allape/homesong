@@ -9,5 +9,6 @@ type Lyrics struct {
 	Name        string `json:"name"`
 	Index       int32  `json:"index" gorm:"default:0"`
 	Content     string `json:"content"`
+	SearchText  string `json:"searchText"`
 	Description string `json:"description"`
 }

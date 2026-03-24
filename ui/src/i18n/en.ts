@@ -63,6 +63,7 @@ export default {
       fromStandardLRC: "Parse from Standard LRC",
       howToMakeLRCPLyrics: "How to make .lrcp lyrics?",
       fileIsTooLarge: "File is too large, it seems not to be a text file",
+      searchText:"Search Text",
     },
     player: {
       name: "Music Player",

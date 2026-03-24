@@ -1,4 +1,4 @@
-import { BaseSearchParams } from "@allape/gocrud";
+import { BaseSearchParams, stringify } from "@allape/gocrud";
 import {
   asDefaultPattern,
   CrudyButton,
@@ -32,9 +32,10 @@ type ISearchParams = ILyricsSearchParams;
 
 export type ILyricsCrudyButtonProps = Partial<ICrudyButtonProps<IRecord>>;
 
-export default function LyricsCrudyButton(
-  props: ILyricsCrudyButtonProps,
-): ReactElement {
+export default function LyricsCrudyButton({
+  beforeSave,
+  ...props
+}: ILyricsCrudyButtonProps): ReactElement {
   const { t } = useTranslation();
   const { message } = App.useApp();
 
@@ -69,6 +70,18 @@ export default function LyricsCrudyButton(
           setSearchParams((old) => ({
             ...old,
             like_name: value,
+          })),
+        ),
+      },
+      {
+        title: t("lyrics.searchText"),
+        dataIndex: "searchText",
+        render: (v) => <Ellipsis>{v}</Ellipsis>,
+        filtered: !!searchParams["like_searchText"],
+        ...searchable(t("lyrics.searchText"), (value) =>
+          setSearchParams((old) => ({
+            ...old,
+            searchText: value,
           })),
         ),
       },
@@ -138,6 +151,24 @@ export default function LyricsCrudyButton(
     return form?.getFieldValue("name");
   }, [form]);
 
+  const handleBeforeSave = useCallback(
+    async (record: ILyrics, form: FormInstance<ILyrics>) => {
+      try {
+        record.searchText = (record.content || "")
+          // remove all [00:00.00]
+          .replace(/\[\d+:\d+(\.\d+)?]/gi, "")
+          // remove all hidden char
+          .replace(/\s/gi, "");
+      } catch (e) {
+        message.warning(`${t("lyrics._")}: ${stringify(e)}`);
+        throw e;
+      }
+
+      return (beforeSave ? beforeSave(record, form) : record) as ILyrics;
+    },
+    [beforeSave, message, t],
+  );
+
   return (
     <CrudyButton
       name={t("lyrics._")}
@@ -150,6 +181,7 @@ export default function LyricsCrudyButton(
       }}
       onFormInit={setForm}
       {...props}
+      beforeSave={handleBeforeSave}
     >
       <Form.Item name="index" label={t("lyrics.index")}>
         <InputNumber

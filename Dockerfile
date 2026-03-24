@@ -1,4 +1,4 @@
-FROM node:23 AS ui_builder
+FROM node:25 AS ui_builder
 
 WORKDIR /build
 
@@ -11,7 +11,7 @@ COPY ui .
 
 RUN npm run build
 
-FROM golang:1.24.0-alpine3.20 AS builder
+FROM golang:1.26-alpine3.23 AS builder
 
 RUN apk update && apk add build-base
 
@@ -24,7 +24,7 @@ RUN go mod download
 COPY . .
 RUN go build -o app .
 
-FROM alpine:3.20
+FROM alpine:3
 
 RUN apk add --no-cache ffmpeg
 
