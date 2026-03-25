@@ -605,7 +605,7 @@ export default function Song(): ReactElement {
         )?.toString() || "",
       );
     }
-    u.hash = "#lyrics-timeline";
+    u.hash = "#lyrics-creator";
     window.open(u.toString());
   }, [form]);
 
