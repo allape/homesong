@@ -188,14 +188,16 @@ export default function SongPlayer({
 
   const handleGetList = useCallback(async () => {
     await execute(async () => {
-      if (!collectionRef.current) {
-        setSongs([]);
-        return;
-      }
+      // if (!collectionRef.current) {
+      //   setSongs([]);
+      //   return;
+      // }
 
       const songs = await SongCrudy.all<ISongSearchParams>({
         ...BaseSearchParams,
-        in_collectionId: [collectionRef.current],
+        in_collectionId: collectionRef.current
+          ? [collectionRef.current]
+          : undefined,
         orderBy_updatedAt: "desc",
         orderBy_index: "asc",
       });
