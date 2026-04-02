@@ -81,7 +81,7 @@ export default function LyricsCrudyButton({
         ...searchable(t("lyrics.searchText"), (value) =>
           setSearchParams((old) => ({
             ...old,
-            searchText: value,
+            like_searchText: value,
           })),
         ),
       },

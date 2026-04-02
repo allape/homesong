@@ -144,11 +144,14 @@ export default function SongPlayer({
   const [loop, loopRef, setLoop] = useProxy<LoopType>("shuffle");
 
   const bitRates = useBitRates();
-  const [bitRate, setBitRate] = useState<BitRate>(() =>
-    /** Use converted .mp3 file on iOS device which can NOT play .FLAC file. **/
-    navigator.userAgent.includes("iPhone")
-      ? bitRates[1].value
-      : bitRates[0].value,
+  const [bitRate, setBitRate] = useState<BitRate>(
+    () =>
+      /** Use converted .mp3 file on iOS device which can NOT play .FLAC file. **/
+      /** Update: Since iOS 26.3, Chrome can play .flac file **/
+      // navigator.userAgent.includes("iPhone")
+      //   ? bitRates[1].value
+      //   : bitRates[0].value,
+      bitRates[0].value,
   );
 
   const handleAudioOk = useCallback(
