@@ -58,6 +58,16 @@ function modifySong(s: ISongWithCollections): IModifiedSong {
   };
 }
 
+function shuffle<T = unknown>(array: T[]): T[] {
+  const shallowCopy = [...array];
+  const result = [];
+  for (let i = 0; i < array.length; i++) {
+    const randomIndex = Math.floor(Math.random() * shallowCopy.length);
+    result[i] = shallowCopy.splice(randomIndex, 1)[0];
+  }
+  return result;
+}
+
 export default function SongPlayer({
   song: songFromProps,
   onClose,
@@ -206,10 +216,15 @@ export default function SongPlayer({
       });
 
       const swcs = await fillSongsWithCollections(songs);
+      const modifiedSongs = swcs.map<IModifiedSong>(modifySong);
 
-      setSongs(swcs.map<IModifiedSong>(modifySong));
+      if (loopRef.current === "shuffle") {
+        setSongs(shuffle(modifiedSongs));
+      } else {
+        setSongs(modifiedSongs);
+      }
     });
-  }, [collectionRef, execute, setSongs]);
+  }, [collectionRef, execute, loopRef, setSongs]);
 
   useEffect(() => {
     if (!song) {
@@ -254,23 +269,6 @@ export default function SongPlayer({
   const handleChangeSong = useCallback(
     (delta: number) => {
       switch (loopRef.current) {
-        case "shuffle":
-          if (delta < 0 && history.current.length > 1) {
-            history.current.splice(history.current.length - 1, 1);
-            const next = history.current[history.current.length - 1];
-            setSong(songsRef.current.find((s) => s.id === next.id));
-            return;
-          }
-
-          setSong((old) => {
-            const index = (songsRef.current.length * Math.random()) >> 0;
-            let next = songsRef.current[index];
-            if (next === old) {
-              next = songsRef.current[(index + 1) % songsRef.current.length];
-            }
-            return next;
-          });
-          return;
         case "singular":
           PEE.dispatchEvent("seekTo", 0);
           clearTimeout(singularLoopPlayNextTimerRef.current);
@@ -281,6 +279,23 @@ export default function SongPlayer({
           return;
         case "no":
           return;
+        // case "shuffle":
+        //   if (delta < 0 && history.current.length > 1) {
+        //     history.current.splice(history.current.length - 1, 1);
+        //     const next = history.current[history.current.length - 1];
+        //     setSong(songsRef.current.find((s) => s.id === next.id));
+        //     return;
+        //   }
+        //
+        //   setSong((old) => {
+        //     const index = (songsRef.current.length * Math.random()) >> 0;
+        //     let next = songsRef.current[index];
+        //     if (next === old) {
+        //       next = songsRef.current[(index + 1) % songsRef.current.length];
+        //     }
+        //     return next;
+        //   });
+        //   return;
         case "list":
         default: {
           if (!songRef.current) {
@@ -320,11 +335,16 @@ export default function SongPlayer({
   const handleLoopChange = useCallback(
     (lt: LoopType) => {
       setLoop(lt);
+
+      if (lt === "shuffle") {
+        setSongs((ss) => shuffle(ss));
+      }
+
       if (!playingRef.current) {
         handleNext();
       }
     },
-    [handleNext, playingRef, setLoop],
+    [handleNext, playingRef, setLoop, setSongs],
   );
 
   const seekTo = useCallback(
