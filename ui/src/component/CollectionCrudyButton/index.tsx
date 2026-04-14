@@ -2,13 +2,14 @@ import { BaseSearchParams } from "@allape/gocrud";
 import {
   asDefaultPattern,
   config,
+  CopyButton,
   CrudyButton,
   Ellipsis,
+  ICrudyButtonProps,
   searchable,
   Uploader,
   useMobile,
 } from "@allape/gocrud-react";
-import { ICrudyButtonProps } from "@allape/gocrud-react/src/component/CrudyButton";
 import { CopyOutlined, PictureOutlined, UserOutlined } from "@ant-design/icons";
 import {
   Avatar,
@@ -28,7 +29,6 @@ import {
   ICollectionSearchParams,
   useCollectionTypes,
 } from "../../model/collection.ts";
-import CopyButton from "../CopyButton";
 
 type IRecord = ICollection;
 type ISearchParams = ICollectionSearchParams;

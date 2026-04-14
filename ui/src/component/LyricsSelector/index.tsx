@@ -1,5 +1,6 @@
 import { BaseSearchParams } from "@allape/gocrud";
 import {
+  CopyButton,
   CrudySelector,
   type ICrudySelectorProps,
   PagedCrudySelector,
@@ -17,11 +18,11 @@ import {
 import { useTranslation } from "react-i18next";
 import { LyricsCrudy } from "../../api/lyrics.ts";
 import { ILyrics, ILyricsSearchParams } from "../../model/lyrics.ts";
-import CopyButton from "../CopyButton";
 import styles from "./style.module.scss";
 
-export interface ILyricsSelectorProps
-  extends Partial<ICrudySelectorProps<ILyrics>> {
+export interface ILyricsSelectorProps extends Partial<
+  ICrudySelectorProps<ILyrics>
+> {
   all?: boolean;
   onLyricsClick?: (record: ILyrics) => void;
 }

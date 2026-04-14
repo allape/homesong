@@ -12,7 +12,6 @@ export default {
     updatedAt: "Updated At",
     continuesUpload: "Continues Upload",
     keepCover: "Keep Cover",
-    copied: "Copied",
     created: "Created",
     createArtistsFast: "Create Artists",
     createArtistsFastTips:

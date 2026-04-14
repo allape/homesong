@@ -2,16 +2,17 @@ import { BaseSearchParams, IBase } from "@allape/gocrud";
 import {
   asDefaultPattern,
   config,
+  CopyButton,
   CrudyTable,
   Ellipsis,
   EventEmitter,
   Flex,
   ICrudyTableProps,
+  NewCrudyButtonEventEmitter,
   searchable,
   Uploader,
   useMobile,
 } from "@allape/gocrud-react";
-import NewCrudyButtonEventEmitter from "@allape/gocrud-react/src/component/CrudyButton/eventemitter.ts";
 import { useProxy } from "@allape/use-loading";
 import {
   CustomerServiceOutlined,
@@ -64,7 +65,6 @@ import CollectionSelector, {
   ArtistSelector,
   NonArtistSelector,
 } from "../../component/CollectionSelector";
-import CopyButton from "../../component/CopyButton";
 import LyricsCrudyButton from "../../component/LyricsCrudyButton";
 import LyricsSelector, {
   ILyricsSelectorProps,

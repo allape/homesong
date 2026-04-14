@@ -1,13 +1,14 @@
 import { BaseSearchParams, stringify } from "@allape/gocrud";
 import {
   asDefaultPattern,
+  CopyButton,
   CrudyButton,
   Ellipsis,
   Flex,
+  ICrudyButtonProps,
   searchable,
   useMobile,
 } from "@allape/gocrud-react";
-import { ICrudyButtonProps } from "@allape/gocrud-react/src/component/CrudyButton";
 import { LyricsDriver } from "@allape/lyrics";
 import { CopyOutlined } from "@ant-design/icons";
 import {
@@ -25,7 +26,6 @@ import { useTranslation } from "react-i18next";
 import { LyricsCrudy } from "../../api/lyrics.ts";
 import { LyricsCreatorDocURL } from "../../config/lyrics.ts";
 import { ILyrics, ILyricsSearchParams } from "../../model/lyrics.ts";
-import CopyButton from "../CopyButton";
 
 type IRecord = ILyrics;
 type ISearchParams = ILyricsSearchParams;

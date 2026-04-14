@@ -12,7 +12,6 @@ export default {
     updatedAt: "更新时间",
     continuesUpload: "持续性上传",
     keepCover: "保留封面",
-    copied: "已复制",
     created: "已创建",
     createArtistsFast: "快速创建",
     createArtistsFastTips:
