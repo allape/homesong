@@ -17,7 +17,7 @@ export default {
     createArtistsFastTips:
       "快速创建艺术家, 用逗号或斜杠分隔, 例如：'艺术家1，艺术家2/艺术家3'",
     required: "{{name}} 是必填项",
-    songSearch: "搜索歌曲, 如：歌手 - 歌名",
+    songSearch: "搜索歌曲, 如：歌名 - 歌手",
     refineLyrics: "优化歌词",
     createSongFirst: "请先创建歌曲",
 

@@ -260,7 +260,7 @@ export default function Song(): ReactElement {
     async (records: IRecord[]): Promise<IRecord[]> => {
       const swcs = await fillSongsWithCollections(records);
       return swcs.map<IRecord>((s) => {
-        const name = `${s._singerNames ? `${s._singerNames} - ` : ""}${s.name}`;
+        const name = `${s.name}${s._singerNames ? ` - ${s._singerNames}` : ""}`;
         const ext = s.filename.split(".").pop();
 
         return {
@@ -425,7 +425,7 @@ export default function Song(): ReactElement {
       const names = Array.from(
         new Set(
           res
-            .split(/[,，/]/gi)
+            .split(/[,，/&]/gi)
             .map((i) => i.trim())
             .filter((i) => !!i),
         ),
@@ -556,8 +556,8 @@ export default function Song(): ReactElement {
 
     const indexOfDash = kw.indexOf("-");
     if (indexOfDash > -1) {
-      const singerName = kw.slice(0, indexOfDash).trim();
-      const songName = kw.slice(indexOfDash + 1).trim();
+      const songName = kw.slice(0, indexOfDash).trim();
+      const singerName = kw.slice(indexOfDash + 1).trim();
       if (singerName) {
         setSearchParams((old) => ({
           ...old,
