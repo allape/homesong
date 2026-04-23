@@ -120,7 +120,7 @@ export default function SongPlayer({
   const [renderingSongs, setRenderingSongs] = useState<IModifiedSong[]>([]);
   const [justScrolled, setJustScrolled] = useState<boolean>(false);
 
-  const history = useRef<IModifiedSong[]>([]);
+  const originalSongsRef = useRef<IModifiedSong[]>([]);
 
   const renderSongs = useCallback(() => {
     clearTimeout(renderSongsTimerRef.current);
@@ -218,6 +218,7 @@ export default function SongPlayer({
       const swcs = await fillSongsWithCollections(songs);
       const modifiedSongs = swcs.map<IModifiedSong>(modifySong);
 
+      originalSongsRef.current = modifiedSongs;
       if (loopRef.current === "shuffle") {
         setSongs(shuffle(modifiedSongs));
       } else {
@@ -233,11 +234,11 @@ export default function SongPlayer({
 
     scrollToCurrentSong();
 
-    const index = history.current.findIndex((i) => i.id === song.id);
-    if (index > -1) {
-      history.current.splice(index, 1);
-    }
-    history.current.push(song);
+    // const index = history.current.findIndex((i) => i.id === song.id);
+    // if (index > -1) {
+    //   history.current.splice(index, 1);
+    // }
+    // history.current.push(song);
   }, [scrollToCurrentSong, song]);
 
   useEffect(() => {
@@ -268,6 +269,29 @@ export default function SongPlayer({
 
   const handleChangeSong = useCallback(
     (delta: number) => {
+      const nextSongThroughCurrentList = () => {
+        if (!songRef.current) {
+          setSong(songsRef.current[0]);
+          return;
+        }
+
+        const current = songsRef.current.findIndex(
+          (s) => s.id === songRef.current!.id,
+        );
+        if (current === -1) {
+          setSong(songsRef.current[0]);
+        }
+
+        const next = current + delta;
+        if (next < 0) {
+          setSong(songsRef.current[songsRef.current.length - 1]);
+        } else if (next >= songsRef.current.length) {
+          setSong(songsRef.current[0]);
+        } else {
+          setSong(songsRef.current[next]);
+        }
+      };
+
       switch (loopRef.current) {
         case "singular":
           PEE.dispatchEvent("seekTo", 0);
@@ -279,45 +303,10 @@ export default function SongPlayer({
           return;
         case "no":
           return;
-        // case "shuffle":
-        //   if (delta < 0 && history.current.length > 1) {
-        //     history.current.splice(history.current.length - 1, 1);
-        //     const next = history.current[history.current.length - 1];
-        //     setSong(songsRef.current.find((s) => s.id === next.id));
-        //     return;
-        //   }
-        //
-        //   setSong((old) => {
-        //     const index = (songsRef.current.length * Math.random()) >> 0;
-        //     let next = songsRef.current[index];
-        //     if (next === old) {
-        //       next = songsRef.current[(index + 1) % songsRef.current.length];
-        //     }
-        //     return next;
-        //   });
-        //   return;
+        case "shuffle":
         case "list":
         default: {
-          if (!songRef.current) {
-            setSong(songsRef.current[0]);
-            return;
-          }
-
-          const current = songsRef.current.findIndex(
-            (s) => s.id === songRef.current!.id,
-          );
-          if (current === -1) {
-            setSong(songsRef.current[0]);
-          }
-
-          const next = current + delta;
-          if (next < 0) {
-            setSong(songsRef.current[songsRef.current.length - 1]);
-          } else if (next >= songsRef.current.length) {
-            setSong(songsRef.current[0]);
-          } else {
-            setSong(songsRef.current[next]);
-          }
+          nextSongThroughCurrentList();
         }
       }
     },
@@ -336,15 +325,23 @@ export default function SongPlayer({
     (lt: LoopType) => {
       setLoop(lt);
 
-      if (lt === "shuffle") {
-        setSongs((ss) => shuffle(ss));
+      switch (lt) {
+        case "shuffle":
+          setSongs(shuffle(originalSongsRef.current));
+          break;
+        default:
+          setSongs([...originalSongsRef.current]);
       }
 
       if (!playingRef.current) {
-        handleNext();
+        if (songRef.current) {
+          PEE.dispatchEvent("play");
+        } else {
+          handleNext();
+        }
       }
     },
-    [handleNext, playingRef, setLoop, setSongs],
+    [PEE, handleNext, playingRef, setLoop, setSongs, songRef],
   );
 
   const seekTo = useCallback(
