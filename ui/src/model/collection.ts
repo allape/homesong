@@ -1,4 +1,9 @@
-import { IBase, IBaseSearchParams } from "@allape/gocrud";
+import {
+  IBase,
+  IBaseSearchParams,
+  ITimeSortSearchParams,
+  SortType,
+} from "@allape/gocrud";
 import { IColoredLV } from "@allape/gocrud-react";
 import { useMemo } from "react";
 import { useTranslation } from "react-i18next";
@@ -15,13 +20,14 @@ export interface ICollection extends IBase {
   priority: number;
 }
 
-export interface ICollectionSearchParams extends IBaseSearchParams {
+export interface ICollectionSearchParams
+  extends
+    IBaseSearchParams,
+    Pick<ITimeSortSearchParams, "orderBy_createdAt" | "orderBy_updatedAt"> {
   in_id?: ICollection["id"][];
   in_type?: ICollection["type"][];
   keywords?: string;
-  orderBy_index?: "desc" | "asc";
-  orderBy_createdAt?: "desc" | "asc";
-  orderBy_updatedAt?: "desc" | "asc";
+  orderBy_priority?: SortType;
 }
 
 export function useCollectionTypes(): IColoredLV<CollectionType>[] {

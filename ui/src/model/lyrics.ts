@@ -1,4 +1,9 @@
-import { IBase, IBaseSearchParams } from "@allape/gocrud";
+import {
+  IBase,
+  IBaseSearchParams,
+  ITimeSortSearchParams,
+  SortType,
+} from "@allape/gocrud";
 
 export interface ILyrics extends IBase {
   name: string;
@@ -8,11 +13,12 @@ export interface ILyrics extends IBase {
   priority: number;
 }
 
-export interface ILyricsSearchParams extends IBaseSearchParams {
+export interface ILyricsSearchParams
+  extends
+    IBaseSearchParams,
+    Pick<ITimeSortSearchParams, "orderBy_createdAt" | "orderBy_updatedAt"> {
   like_name?: string;
   like_searchText?: string;
   in_id?: ILyrics["id"][];
-  orderBy_index?: "desc" | "asc";
-  orderBy_createdAt?: "desc" | "asc";
-  orderBy_updatedAt?: "desc" | "asc";
+  orderBy_priority?: SortType;
 }

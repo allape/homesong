@@ -26,7 +26,7 @@ export default function CollectionSelector({
     () => ({
       ...BaseSearchParams,
       in_type: types,
-      orderBy_index: "asc",
+      orderBy_priority: "asc",
     }),
     [types],
   );
