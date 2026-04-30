@@ -479,42 +479,34 @@ export default function Song(): ReactElement {
     singersRef.current = records;
   }, []);
 
-  const handleCreateLyrics = useCallback(() => {
-    setTimeout(() => {
-      if (!form) {
-        return;
-      }
+  const handleCreateLyrics = useCallback(
+    (record?: Partial<IRecord>) => {
+      setTimeout(() => {
+        if (!form) {
+          return;
+        }
 
-      const singerIds: ICollection["id"][] =
-        form.getFieldValue("_singerIds") || [];
-      const signersNames = singerIds.length
-        ? `${singerIds
-            .map((id) => singersRef.current.find((i) => i.id === id)?.name)
-            .filter((i) => !!i)
-            .join(" & ")} - `
-        : "";
+        LyricsCrudyEmitter.dispatchEvent("open-save-form", {
+          name: record?._name || "",
+        } as ILyrics);
 
-      const songName = form.getFieldValue("name") || "";
-
-      LyricsCrudyEmitter.dispatchEvent("open-save-form", {
-        name: `${signersNames}${songName}`,
-      } as ILyrics);
-
-      LyricsCrudyEmitter.addEventListener(
-        "save-form-closed",
-        (e) => {
-          const old: IBase["id"][] = form.getFieldValue("_lyricsIds") || [];
-          form.setFieldValue(
-            "_lyricsIds",
-            e.value?.id ? [...old, e.value.id] : old,
-          );
-        },
-        {
-          once: true,
-        },
-      );
-    });
-  }, [LyricsCrudyEmitter, form]);
+        LyricsCrudyEmitter.addEventListener(
+          "save-form-closed",
+          (e) => {
+            const old: IBase["id"][] = form.getFieldValue("_lyricsIds") || [];
+            form.setFieldValue(
+              "_lyricsIds",
+              e.value?.id ? [...old, e.value.id] : old,
+            );
+          },
+          {
+            once: true,
+          },
+        );
+      });
+    },
+    [LyricsCrudyEmitter, form],
+  );
 
   const handleEditLyrics = useCallback(
     (record: ILyrics) => {
@@ -910,7 +902,10 @@ export default function Song(): ReactElement {
                     {t("lyrics._")}
                   </Button>
                   <Divider type="vertical" />
-                  <Button type="primary" onClick={handleCreateLyrics}>
+                  <Button
+                    type="primary"
+                    onClick={() => handleCreateLyrics(record)}
+                  >
                     {t("gocrud.add")}
                     {t("lyrics._")}
                   </Button>
