@@ -18,7 +18,7 @@ func SetupLyricsController(group *gin.RouterGroup, db *gorm.DB) error {
 			"like_searchText":   gocrud.KeywordLike("search_text", nil),
 			"in_id":             gocrud.KeywordIDIn("id", gocrud.OverflowedArrayTrimmerFilter[gocrud.ID](DefaultPageSize)),
 			"deleted":           gocrud.NewSoftDeleteSearchHandler("lyrics"),
-			"orderBy_index":     gocrud.SortBy("index"),
+			"orderBy_priority":  gocrud.SortBy("priority"),
 			"orderBy_createdAt": gocrud.SortBy("created_at"),
 			"orderBy_updatedAt": gocrud.SortBy("updated_at"),
 		},

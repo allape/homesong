@@ -3,10 +3,11 @@ package ffmpeg
 import (
 	"encoding/json"
 	"fmt"
-	"github.com/allape/gogger"
 	"io"
 	"os"
 	"os/exec"
+
+	"github.com/allape/gogger"
 )
 
 var l = gogger.New("ffmpeg")
@@ -67,6 +68,11 @@ func FFProbe(file string) (*FFProbeJson, string, error) {
 	if err != nil {
 		return nil, "", err
 	}
+
+	defer func() {
+		_ = f.Close()
+	}()
+
 	return FFProbeReader(f)
 }
 

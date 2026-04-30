@@ -1,4 +1,9 @@
-import { IBase, IBaseSearchParams } from "@allape/gocrud";
+import {
+  IBase,
+  IBaseSearchParams,
+  ITimeSortSearchParams,
+  SortType,
+} from "@allape/gocrud";
 import { ICollection } from "./collection.ts";
 import { ILyrics } from "./lyrics.ts";
 
@@ -10,17 +15,16 @@ export interface ISong extends IBase {
   mime: string;
   ffprobeInfo: string;
   description: string;
-  index: number;
+  priority: number;
 }
 
-export interface ISongSearchParams extends IBaseSearchParams {
+export interface ISongSearchParams
+  extends IBaseSearchParams, Pick<ITimeSortSearchParams, 'orderBy_createdAt' | 'orderBy_updatedAt'> {
   like_name?: string;
   like_collectionName?: string;
   in_id?: ISong["id"][];
   in_collectionId?: ICollection["id"][];
-  orderBy_index?: "desc" | "asc";
-  orderBy_createdAt?: "desc" | "asc";
-  orderBy_updatedAt?: "desc" | "asc";
+  orderBy_priority?: SortType;
 }
 
 export interface ISongLyrics {

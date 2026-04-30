@@ -1,8 +1,9 @@
 package model
 
 import (
-	"github.com/allape/gocrud"
 	"time"
+
+	"github.com/allape/gocrud"
 )
 
 type Song struct {
@@ -14,7 +15,7 @@ type Song struct {
 	MIME        string `json:"mime"`
 	FFProbeInfo string `json:"ffprobeInfo"`
 	Description string `json:"description"`
-	Index       int32  `json:"index" gorm:"default:0"`
+	Priority    int64  `json:"priority"`
 }
 
 type SongLyrics struct {

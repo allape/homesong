@@ -1,8 +1,9 @@
 package model
 
 import (
-	"github.com/allape/gocrud"
 	"time"
+
+	"github.com/allape/gocrud"
 )
 
 type CollectionType string
@@ -42,7 +43,7 @@ type Collection struct {
 	Description string         `json:"description"`
 	Keywords    string         `json:"keywords"`
 	Cover       string         `json:"cover"`
-	Index       int32          `json:"index" gorm:"default:0"`
+	Priority    int64          `json:"priority"`
 }
 
 type CollectionSong struct {

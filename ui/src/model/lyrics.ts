@@ -5,7 +5,7 @@ export interface ILyrics extends IBase {
   content: string;
   searchText: string;
   description: string;
-  index: number;
+  priority: number;
 }
 
 export interface ILyricsSearchParams extends IBaseSearchParams {

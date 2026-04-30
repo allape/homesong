@@ -28,7 +28,7 @@ export default {
       ffprobeInfo: "FFProbe Info",
       mime: "MIME",
       description: "Description",
-      index: "Index",
+      priority: "Priority",
       artistName: "Artist Name",
     },
     collection: {
@@ -38,7 +38,7 @@ export default {
       description: "Description",
       keywords: "Keywords",
       cover: "Cover",
-      index: "Index",
+      priority: "Priority",
       types: {
         artist: "Artist",
         album: "Album",
@@ -57,7 +57,7 @@ export default {
       _: "Lyrics",
       name: "Name",
       content: ".lrcp",
-      index: "Index",
+      priority: "Priority",
       description: "Description",
       fromStandardLRC: "Parse from Standard LRC",
       howToMakeLRCPLyrics: "How to make .lrcp lyrics?",

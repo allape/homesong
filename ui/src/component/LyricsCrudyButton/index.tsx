@@ -54,8 +54,8 @@ export default function LyricsCrudyButton({
         dataIndex: "id",
       },
       {
-        title: <span className="nowrap">{t("lyrics.index")}</span>,
-        dataIndex: "index",
+        title: <span className="nowrap">{t("lyrics.priority")}</span>,
+        dataIndex: "priority",
       },
       {
         title: t("lyrics.name"),
@@ -183,13 +183,11 @@ export default function LyricsCrudyButton({
       {...props}
       beforeSave={handleBeforeSave}
     >
-      <Form.Item name="index" label={t("lyrics.index")}>
+      <Form.Item name="priority" label={t("lyrics.priority")}>
         <InputNumber
-          min={-9999}
-          max={9999}
           step={1}
           precision={0}
-          placeholder={t("lyrics.index")}
+          placeholder={t("lyrics.priority")}
         />
       </Form.Item>
       <Form.Item

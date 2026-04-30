@@ -23,12 +23,6 @@ export function saveCollectionSongsBySong(
   );
 }
 
-export function getRandomSongInCollection(
-  id: ICollection["id"],
-): Promise<ISong> {
-  return get(`${config.SERVER_URL}/collection/random/${id}`);
-}
-
 export function createOrGetCollectionsByArtistNames(
   names: string[],
 ): Promise<ICollection[]> {

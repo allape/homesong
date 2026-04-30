@@ -28,7 +28,7 @@ export default {
       ffprobeInfo: "FFProbe 信息",
       mime: "MIME",
       description: "描述",
-      index: "序号",
+      priority: "排序权重",
       artistName: "艺术家名称",
     },
     collection: {
@@ -38,7 +38,7 @@ export default {
       description: "描述",
       keywords: "关键词",
       cover: "封面",
-      index: "序号",
+      priority: "排序权重",
       types: {
         artist: "艺术家",
         album: "专辑",
@@ -57,7 +57,7 @@ export default {
       _: "歌词",
       name: "名称",
       content: ".lrcp",
-      index: "序号",
+      priority: "排序权重",
       description: "描述",
       fromStandardLRC: "从标准 LRC 解析",
       howToMakeLRCPLyrics: "如何制作 .lrcp 歌词？",

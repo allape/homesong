@@ -2,14 +2,15 @@ package controller
 
 import (
 	"fmt"
-	"github.com/allape/gocrud"
-	"github.com/allape/homesong/model"
-	"github.com/gin-gonic/gin"
-	"gorm.io/gorm"
 	"net/http"
 	"net/url"
 	"slices"
 	"strings"
+
+	"github.com/allape/gocrud"
+	"github.com/allape/homesong/model"
+	"github.com/gin-gonic/gin"
+	"gorm.io/gorm"
 )
 
 func SetupCollectionController(group *gin.RouterGroup, db *gorm.DB) error {
@@ -25,7 +26,7 @@ func SetupCollectionController(group *gin.RouterGroup, db *gorm.DB) error {
 			"in_id":             gocrud.KeywordIDIn("id", gocrud.OverflowedArrayTrimmerFilter[gocrud.ID](DefaultPageSize)),
 			"in_type":           gocrud.KeywordIn("type", nil),
 			"deleted":           gocrud.NewSoftDeleteSearchHandler(""),
-			"orderBy_index":     gocrud.SortBy("index"),
+			"orderBy_priority":  gocrud.SortBy("priority"),
 			"orderBy_createdAt": gocrud.SortBy("created_at"),
 			"orderBy_updatedAt": gocrud.SortBy("updated_at"),
 		},
@@ -84,31 +85,6 @@ func SetupCollectionController(group *gin.RouterGroup, db *gorm.DB) error {
 		}
 
 		context.JSON(http.StatusOK, gocrud.R[[]model.Collection]{Code: gocrud.RestCoder.OK(), Data: exists})
-	})
-
-	// inefficient
-	group.GET("/random/:collectionId", func(context *gin.Context) {
-		collectionId := gocrud.Pick(gocrud.IDsFromCommaSeparatedString(context.Param("collectionId")), 0, 0)
-
-		var song model.Song
-
-		if collectionId == 0 {
-			if err := db.Model(&song).Where("songs.deleted_at IS NULL").Order("rand() DESC").First(&song).Error; err != nil {
-				gocrud.MakeErrorResponse(context, gocrud.RestCoder.InternalServerError(), err)
-				return
-			}
-		} else {
-			if err := db.Model(&song).Where(
-				"id IN (SELECT collection_songs.song_id FROM collection_songs WHERE collection_songs.collection_id = ?) AND songs.deleted_at IS NULL",
-				collectionId,
-			).Order("rand() DESC").First(&song).Error; err != nil {
-				// just return error when this collection is empty
-				gocrud.MakeErrorResponse(context, gocrud.RestCoder.InternalServerError(), err)
-				return
-			}
-		}
-
-		context.JSON(http.StatusOK, gocrud.R[model.Song]{Code: gocrud.RestCoder.OK(), Data: song})
 	})
 
 	collectionSongGroup := group.Group("/song")

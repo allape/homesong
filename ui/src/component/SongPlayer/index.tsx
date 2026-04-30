@@ -211,8 +211,8 @@ export default function SongPlayer({
         in_collectionId: collectionRef.current
           ? [collectionRef.current]
           : undefined,
+        orderBy_priority: "asc",
         orderBy_updatedAt: "desc",
-        orderBy_index: "asc",
       });
 
       const swcs = await fillSongsWithCollections(songs);
@@ -553,7 +553,6 @@ export default function SongPlayer({
                     loading={loading}
                     value={collection}
                     onChange={handleCollectionChange}
-                    allowClear
                     onLoaded={handleCollectionsLoaded}
                   ></CollectionSelector>
                 </div>

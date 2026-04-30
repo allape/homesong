@@ -56,8 +56,8 @@ export default function CollectionCrudyButton(
         dataIndex: "id",
       },
       {
-        title: <span className="nowrap">{t("collection.index")}</span>,
-        dataIndex: "index",
+        title: <span className="nowrap">{t("collection.priority")}</span>,
+        dataIndex: "priority",
       },
       {
         title: t("collection.type"),
@@ -159,13 +159,11 @@ export default function CollectionCrudyButton(
       <Form.Item name="cover" label={t("collection.cover")}>
         <Uploader serverURL={config.SERVER_STATIC_URL} accept="image/*" />
       </Form.Item>
-      <Form.Item name="index" label={t("collection.index")}>
+      <Form.Item name="priority" label={t("collection.priority")}>
         <InputNumber
-          min={-9999}
-          max={9999}
           step={1}
           precision={0}
-          placeholder={t("collection.index")}
+          placeholder={t("collection.priority")}
         />
       </Form.Item>
       <Form.Item

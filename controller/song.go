@@ -54,7 +54,7 @@ func SetupSongController(group *gin.RouterGroup, db *gorm.DB) error {
 			"like_name":         gocrud.KeywordLike("name", nil),
 			"in_id":             gocrud.KeywordIDIn("id", gocrud.OverflowedArrayTrimmerFilter[gocrud.ID](DefaultPageSize)),
 			"deleted":           gocrud.NewSoftDeleteSearchHandler("songs"),
-			"orderBy_index":     gocrud.SortBy("index"),
+			"orderBy_priority":  gocrud.SortBy("priority"),
 			"orderBy_createdAt": gocrud.SortBy("created_at"),
 			"orderBy_updatedAt": gocrud.SortBy("updated_at"),
 			"in_collectionId": func(db *gorm.DB, values []string, with url.Values) *gorm.DB {
@@ -413,7 +413,7 @@ func SetupSongController(group *gin.RouterGroup, db *gorm.DB) error {
 		if err := db.Model(&lyricsArr).Where(
 			"id IN (SELECT song_lyrics.lyrics_id FROM song_lyrics WHERE song_lyrics.song_id = ?)",
 			id,
-		).Order("`index` ASC").Order("`updated_at` DESC").Find(&lyricsArr).Error; err != nil {
+		).Order("`priority` ASC").Order("`updated_at` DESC").Find(&lyricsArr).Error; err != nil {
 			gocrud.MakeErrorResponse(context, gocrud.RestCoder.InternalServerError(), err)
 			return
 		}

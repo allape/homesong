@@ -33,6 +33,10 @@ func ExtractCover(filename string, ffprobe *FFProbeJson) ([]byte, CodecName, err
 		return nil, "", err
 	}
 
+	defer func() {
+		_ = file.Close()
+	}()
+
 	if ffprobe == nil {
 		ffprobe, _, err = FFProbeReader(file)
 		if err != nil {

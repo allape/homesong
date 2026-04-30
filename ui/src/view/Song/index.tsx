@@ -711,13 +711,11 @@ export default function Song(): ReactElement {
               />
             </Form.Item>
 
-            <Form.Item name="index" label={t("song.index")}>
+            <Form.Item name="priority" label={t("song.priority")}>
               <InputNumber
-                min={-9999}
-                max={9999}
                 step={1}
                 precision={0}
-                placeholder={t("song.index")}
+                placeholder={t("song.priority")}
               />
             </Form.Item>
 
