@@ -40,7 +40,7 @@ export default function LyricsSelector({
     () => ({
       ...BaseSearchParams,
       orderBy_updatedAt: "desc",
-      orderBy_priority: "asc",
+      orderBy_priority: "desc",
     }),
     [],
   );
