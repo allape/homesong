@@ -149,6 +149,36 @@ export default function Song(): ReactElement {
         width: 80,
       },
       {
+        title: t("collection._"),
+        dataIndex: "_nonArtistNames",
+        render: (_, record) => (
+          <div style={CensoredStyle}>
+            {record._nonArtistNameArr?.length
+              ? record._nonArtistNameArr.map((name) => (
+                <div
+                  key={name}
+                  className={cls(styles.nonArtistName, styles.noWrap)}
+                >
+                  {name}
+                </div>
+              ))
+              : "---"}
+          </div>
+        ),
+        filtered: !!searchParams["in_collectionId"],
+        ...searchable<IRecord, ICollection["id"]>(
+          t("song.name"),
+          (value) =>
+            setSearchParams((old) => ({
+              ...old,
+              in_collectionId: value ? [value] : undefined,
+            })),
+          (value, onChange) => (
+            <CollectionSelector value={value} onChange={onChange} />
+          ),
+        ),
+      },
+      {
         title: t("song.cover"),
         dataIndex: "_cover",
         render: (v) => {
@@ -199,36 +229,6 @@ export default function Song(): ReactElement {
             ...old,
             like_name: value,
           })),
-        ),
-      },
-      {
-        title: t("collection._"),
-        dataIndex: "_nonArtistNames",
-        render: (_, record) => (
-          <div style={CensoredStyle}>
-            {record._nonArtistNameArr?.length
-              ? record._nonArtistNameArr.map((name) => (
-                  <div
-                    key={name}
-                    className={cls(styles.nonArtistName, styles.noWrap)}
-                  >
-                    {name}
-                  </div>
-                ))
-              : "---"}
-          </div>
-        ),
-        filtered: !!searchParams["in_collectionId"],
-        ...searchable<IRecord, ICollection["id"]>(
-          t("song.name"),
-          (value) =>
-            setSearchParams((old) => ({
-              ...old,
-              in_collectionId: value ? [value] : undefined,
-            })),
-          (value, onChange) => (
-            <CollectionSelector value={value} onChange={onChange} />
-          ),
         ),
       },
       {
