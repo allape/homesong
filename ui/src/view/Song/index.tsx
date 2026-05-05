@@ -560,14 +560,12 @@ export default function Song(): ReactElement {
       const singerName = kw
         .slice(indexOfDash + 1)
         .split("&")[0]
-        .trim()
-      if (songName) {
-        setSearchParams((old) => ({
-          ...old,
-          like_name: songName,
-          like_collectionName: singerName,
-        }));
-      }
+        .trim();
+      setSearchParams((old) => ({
+        ...old,
+        like_name: songName,
+        like_collectionName: singerName,
+      }));
       return;
     }
 
