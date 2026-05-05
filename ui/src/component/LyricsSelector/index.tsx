@@ -39,8 +39,8 @@ export default function LyricsSelector({
   const sp = useMemo<ILyricsSearchParams>(
     () => ({
       ...BaseSearchParams,
-      orderBy_updatedAt: "desc",
       orderBy_priority: "desc",
+      orderBy_updatedAt: "desc",
     }),
     [],
   );

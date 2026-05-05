@@ -497,7 +497,7 @@ export default function Song(): ReactElement {
       const songName = form.getFieldValue("name") || "";
 
       LyricsCrudyEmitter.dispatchEvent("open-save-form", {
-        name: `${songName} - ${signersNames}`,
+        name: `${songName}${signersNames ? ` - ${signersNames}` : ""}`,
       } as ILyrics);
 
       LyricsCrudyEmitter.addEventListener(

@@ -44,6 +44,7 @@ export default function LyricsCrudyButton({
   const [form, setForm] = useState<FormInstance<ILyrics> | null>(null);
   const [searchParams, setSearchParams] = useState<ISearchParams>(() => ({
     ...BaseSearchParams,
+    orderBy_priority: "desc",
     orderBy_updatedAt: "desc",
   }));
 
