@@ -2,6 +2,7 @@ package controller
 
 import (
 	"net/http"
+	"net/url"
 	"strings"
 
 	"github.com/allape/gocrud"
@@ -21,6 +22,9 @@ func SetupLyricsController(group *gin.RouterGroup, db *gorm.DB) error {
 			"orderBy_priority":  gocrud.SortBy("priority"),
 			"orderBy_createdAt": gocrud.SortBy("created_at"),
 			"orderBy_updatedAt": gocrud.SortBy("updated_at"),
+			"orderByDefault": func(db *gorm.DB, values []string, with url.Values) *gorm.DB {
+				return db.Order("`priority` DESC, `updated_at` DESC")
+			},
 		},
 		OnDelete: gocrud.NewSoftDeleteHandler[model.Lyrics](gocrud.RestCoder),
 		WillSave: func(record *model.Lyrics, context *gin.Context, db *gorm.DB) {

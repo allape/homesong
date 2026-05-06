@@ -8,16 +8,19 @@ import (
 	"strings"
 
 	"github.com/allape/gocrud"
+	"github.com/allape/gogger"
 	"github.com/allape/homesong/model"
 	"github.com/gin-gonic/gin"
 	"gorm.io/gorm"
 )
 
+var collectionl = gogger.New("controller:collection")
+
 func SetupCollectionController(group *gin.RouterGroup, db *gorm.DB) error {
 	err := gocrud.New(group, db, gocrud.Crud[model.Collection]{
 		SearchHandlers: map[string]gocrud.SearchHandler{
 			"keywords": func(db *gorm.DB, values []string, with url.Values) *gorm.DB {
-				if ok, value := gocrud.ValuableArray(values); ok {
+				if value, ok := gocrud.PickFirstValuableString(values); ok {
 					likeValue := fmt.Sprintf("%%%s%%", strings.TrimSpace(value))
 					return db.Where("keywords LIKE ? OR name LIKE ? OR id = ?", likeValue, likeValue, value)
 				}
@@ -29,6 +32,9 @@ func SetupCollectionController(group *gin.RouterGroup, db *gorm.DB) error {
 			"orderBy_priority":  gocrud.SortBy("priority"),
 			"orderBy_createdAt": gocrud.SortBy("created_at"),
 			"orderBy_updatedAt": gocrud.SortBy("updated_at"),
+			"orderByDefault": func(db *gorm.DB, values []string, with url.Values) *gorm.DB {
+				return db.Order("`priority` DESC, `updated_at` DESC")
+			},
 		},
 		OnDelete: gocrud.NewSoftDeleteHandler[model.Collection](gocrud.RestCoder),
 		WillSave: func(record *model.Collection, context *gin.Context, db *gorm.DB) {
@@ -39,11 +45,28 @@ func SetupCollectionController(group *gin.RouterGroup, db *gorm.DB) error {
 			if record.Type == "" {
 				gocrud.MakeErrorResponse(context, gocrud.RestCoder.BadRequest(), "type is required")
 				return
+			} else if slices.Contains(model.CollectionTypes, record.Type) {
+				gocrud.MakeErrorResponse(context, gocrud.RestCoder.BadRequest(), "type is invalid")
+				return
 			}
 
 			var exist model.Collection
 			if err := db.Model(&exist).Where("`name` = ? AND `type` = ?", record.Name, record.Type).First(&exist).Error; err == nil && exist.ID != record.ID {
 				gocrud.MakeErrorResponse(context, gocrud.RestCoder.BadRequest(), "name already exists")
+				return
+			}
+
+			if ok, err := gocrud.DuplicateFieldCheck(
+				db, context,
+				record, "Code", "code",
+			); !ok || err != nil {
+				if err != nil {
+					collectionl.Error().Printf("error checking duplicate field: %s", err)
+					gocrud.MakeErrorResponse(context, gocrud.RestCoder.InternalServerError(), "duplicate field [error]")
+					return
+				}
+
+				gocrud.MakeErrorResponse(context, gocrud.RestCoder.BadRequest(), "code already exists")
 				return
 			}
 		},

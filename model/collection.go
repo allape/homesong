@@ -14,6 +14,23 @@ const (
 	CollectionTypeSong   CollectionType = "playlist"
 )
 
+var CollectionTypes = []CollectionType{
+	CollectionTypeArtist,
+	CollectionTypeAlbum,
+	CollectionTypeSong,
+}
+
+type Collection struct {
+	gocrud.Base
+	Type        CollectionType `json:"type"`
+	Priority    int64          `json:"priority"`
+	Cover       string         `json:"cover"`
+	Name        string         `json:"name"`               // human-readable name
+	Keywords    string         `json:"keywords"`           // search keywords
+	Code        string         `json:"code" gorm:"unique"` // for machine usage, not for human
+	Description string         `json:"description"`
+}
+
 type Role string
 
 const (
@@ -34,16 +51,6 @@ var Roles = []Role{
 	Producer,
 	Other,
 	Reserved,
-}
-
-type Collection struct {
-	gocrud.Base
-	Type        CollectionType `json:"type"`
-	Name        string         `json:"name"`
-	Description string         `json:"description"`
-	Keywords    string         `json:"keywords"`
-	Cover       string         `json:"cover"`
-	Priority    int64          `json:"priority"`
 }
 
 type CollectionSong struct {

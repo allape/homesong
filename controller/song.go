@@ -57,8 +57,11 @@ func SetupSongController(group *gin.RouterGroup, db *gorm.DB) error {
 			"orderBy_priority":  gocrud.SortBy("priority"),
 			"orderBy_createdAt": gocrud.SortBy("created_at"),
 			"orderBy_updatedAt": gocrud.SortBy("updated_at"),
+			"orderByDefault": func(db *gorm.DB, values []string, with url.Values) *gorm.DB {
+				return db.Order("`priority` DESC, `updated_at` DESC")
+			},
 			"in_collectionId": func(db *gorm.DB, values []string, with url.Values) *gorm.DB {
-				if ok, value := gocrud.ValuableArray(values); ok {
+				if value, ok := gocrud.PickFirstValuableString(values); ok {
 					ids := gocrud.IDsFromCommaSeparatedString(value)
 					if len(ids) == 0 {
 						return db
@@ -68,7 +71,7 @@ func SetupSongController(group *gin.RouterGroup, db *gorm.DB) error {
 				return db
 			},
 			"like_collectionName": func(db *gorm.DB, values []string, with url.Values) *gorm.DB {
-				if ok, value := gocrud.ValuableArray(values); ok {
+				if value, ok := gocrud.PickFirstValuableString(values); ok {
 					value = fmt.Sprintf("%%%s%%", value)
 					return db.Where(
 						`
@@ -413,7 +416,7 @@ func SetupSongController(group *gin.RouterGroup, db *gorm.DB) error {
 		if err := db.Model(&lyricsArr).Where(
 			"id IN (SELECT song_lyrics.lyrics_id FROM song_lyrics WHERE song_lyrics.song_id = ?)",
 			id,
-		).Order("`priority` ASC").Order("`updated_at` DESC").Find(&lyricsArr).Error; err != nil {
+		).Order("`priority` DESC").Order("`updated_at` DESC").Find(&lyricsArr).Error; err != nil {
 			gocrud.MakeErrorResponse(context, gocrud.RestCoder.InternalServerError(), err)
 			return
 		}
