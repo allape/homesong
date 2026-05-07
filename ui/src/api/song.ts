@@ -201,8 +201,11 @@ export async function fillSongsWithCollections(
   });
 }
 
-export function getLyrics(id: ISong["id"]): Promise<ILyrics[]> {
-  return get(`${config.SERVER_URL}/song/lyrics/${id}`);
+export async function getLyrics(id: ISong["id"]): Promise<ILyrics[]> {
+  const lyrics = await get<ILyrics[] | undefined>(
+    `${config.SERVER_URL}/song/lyrics/${id}`,
+  );
+  return lyrics || [];
 }
 
 export function saveLyricsBySong(
