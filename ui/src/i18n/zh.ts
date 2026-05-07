@@ -1,6 +1,7 @@
 import { i18n } from "@allape/gocrud-react";
+import TranslationEn from "./en.ts";
 
-export default {
+const TranslationZh: typeof TranslationEn = {
   translation: {
     ...i18n.ZHCN,
 
@@ -33,8 +34,9 @@ export default {
     },
     collection: {
       _: "收藏",
-      name: "名称",
       type: "类型",
+      code: "唯一编号",
+      name: "名称",
       description: "描述",
       keywords: "关键词",
       cover: "封面",
@@ -98,3 +100,5 @@ export default {
     },
   },
 };
+
+export default TranslationZh;

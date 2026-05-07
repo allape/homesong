@@ -1,6 +1,6 @@
 import { i18n } from "@allape/gocrud-react";
 
-export default {
+const TranslationEn = {
   translation: {
     ...i18n.EN,
 
@@ -33,8 +33,9 @@ export default {
     },
     collection: {
       _: "Collection",
-      name: "Name",
       type: "Type",
+      code: "Code for Machine",
+      name: "Name",
       description: "Description",
       keywords: "Keywords",
       cover: "Cover",
@@ -98,3 +99,5 @@ export default {
     },
   },
 };
+
+export default TranslationEn;

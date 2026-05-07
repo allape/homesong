@@ -13,11 +13,12 @@ export type CollectionType = "artist" | "album" | "playlist";
 
 export interface ICollection extends IBase {
   type: CollectionType;
-  name: string;
-  description: string;
-  keywords: string;
-  cover: string;
   priority: number;
+  cover: string;
+  name: string;
+  keywords: string;
+  code: string;
+  description: string;
 }
 
 export interface ICollectionSearchParams

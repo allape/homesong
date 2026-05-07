@@ -45,7 +45,7 @@ func SetupCollectionController(group *gin.RouterGroup, db *gorm.DB) error {
 			if record.Type == "" {
 				gocrud.MakeErrorResponse(context, gocrud.RestCoder.BadRequest(), "type is required")
 				return
-			} else if slices.Contains(model.CollectionTypes, record.Type) {
+			} else if !slices.Contains(model.CollectionTypes, record.Type) {
 				gocrud.MakeErrorResponse(context, gocrud.RestCoder.BadRequest(), "type is invalid")
 				return
 			}
@@ -56,18 +56,17 @@ func SetupCollectionController(group *gin.RouterGroup, db *gorm.DB) error {
 				return
 			}
 
-			if ok, err := gocrud.DuplicateFieldCheck(
-				db, context,
-				record, "Code", "code",
-			); !ok || err != nil {
-				if err != nil {
-					collectionl.Error().Printf("error checking duplicate field: %s", err)
-					gocrud.MakeErrorResponse(context, gocrud.RestCoder.InternalServerError(), "duplicate field [error]")
+			record.Code = strings.TrimSpace(record.Code)
+			if record.Code != "" {
+				if ok, err := gocrud.DuplicateFieldCheck(
+					db, context,
+					record, "Code", "code",
+				); !ok {
+					if err != nil {
+						collectionl.Error().Printf("error checking duplicate field: %s", err)
+					}
 					return
 				}
-
-				gocrud.MakeErrorResponse(context, gocrud.RestCoder.BadRequest(), "code already exists")
-				return
 			}
 		},
 	})

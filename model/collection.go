@@ -25,9 +25,9 @@ type Collection struct {
 	Type        CollectionType `json:"type"`
 	Priority    int64          `json:"priority"`
 	Cover       string         `json:"cover"`
-	Name        string         `json:"name"`               // human-readable name
-	Keywords    string         `json:"keywords"`           // search keywords
-	Code        string         `json:"code" gorm:"unique"` // for machine usage, not for human
+	Name        string         `json:"name"`     // human-readable name
+	Keywords    string         `json:"keywords"` // search keywords
+	Code        string         `json:"code"`     // for machine usage, not for human
 	Description string         `json:"description"`
 }
 

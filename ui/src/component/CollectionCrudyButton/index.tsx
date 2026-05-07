@@ -110,12 +110,21 @@ export default function CollectionCrudyButton(
         title: t("collection.name"),
         dataIndex: "name",
         render: (v, r) => (
-          <div>
-            <CopyButton value={v}>
-              {v} <CopyOutlined />
-            </CopyButton>
+          <>
+            <div>
+              <CopyButton value={v}>
+                {v} <CopyOutlined />
+              </CopyButton>
+            </div>
+            {r.code && (
+              <div>
+                <CopyButton value={r.code}>
+                  <Tag>{r.code}</Tag>
+                </CopyButton>
+              </div>
+            )}
             <div>{r.keywords}</div>
-          </div>
+          </>
         ),
         filtered: !!searchParams["keywords"],
         ...searchable(t("collection.keywords"), (value) =>
@@ -179,6 +188,9 @@ export default function CollectionCrudyButton(
         rules={[{ required: true }]}
       >
         <Input maxLength={200} placeholder={t("collection.name")} />
+      </Form.Item>
+      <Form.Item name="code" label={t("collection.code")}>
+        <Input maxLength={200} placeholder={t("collection.code")} />
       </Form.Item>
       <Form.Item name="keywords" label={t("collection.keywords")}>
         <Input maxLength={200} placeholder={t("collection.keywords")} />
