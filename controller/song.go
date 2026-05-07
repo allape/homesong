@@ -383,7 +383,7 @@ func SetupSongController(group *gin.RouterGroup, db *gorm.DB) error {
 		}
 
 		if err := db.Transaction(func(tx *gorm.DB) error {
-			if err := tx.Model(&model.SongLyrics{}).Delete("song_id = ?", id).Error; err != nil {
+			if err := tx.Delete(&model.SongLyrics{}, "song_id = ?", id).Error; err != nil {
 				return err
 			}
 

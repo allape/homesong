@@ -159,7 +159,7 @@ func SetupCollectionController(group *gin.RouterGroup, db *gorm.DB) error {
 			}
 		}
 
-		if err := db.Model(&model.CollectionSong{}).Where("song_id = ? AND role = ?", song.ID, role).Delete(&model.CollectionSong{}).Error; err != nil {
+		if err := db.Delete(&model.CollectionSong{}, "song_id = ? AND role = ?", song.ID, role).Error; err != nil {
 			gocrud.MakeErrorResponse(context, gocrud.RestCoder.InternalServerError(), err)
 			return
 		}
