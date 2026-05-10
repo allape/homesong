@@ -34,6 +34,7 @@ import {
   ModalProps,
   Switch,
   TableColumnsType,
+  Tag,
   Tooltip,
 } from "antd";
 import cls from "classnames";
@@ -76,7 +77,7 @@ import {
   LyricsRemoteTouchpadMQTTClientID,
   LyricsRemoteTouchpadMQTTURL,
 } from "../../config/lyrics.ts";
-import { ICollection } from "../../model/collection.ts";
+import { CollectionTypes, ICollection } from "../../model/collection.ts";
 import { ILyrics } from "../../model/lyrics.ts";
 import { ISongSearchParams } from "../../model/song.ts";
 import styles from "./style.module.scss";
@@ -149,36 +150,6 @@ export default function Song(): ReactElement {
         width: 80,
       },
       {
-        title: t("collection._"),
-        dataIndex: "_nonArtistNames",
-        render: (_, record) => (
-          <div style={CensoredStyle}>
-            {record._nonArtistNameArr?.length
-              ? record._nonArtistNameArr.map((name) => (
-                <div
-                  key={name}
-                  className={cls(styles.nonArtistName, styles.noWrap)}
-                >
-                  {name}
-                </div>
-              ))
-              : "---"}
-          </div>
-        ),
-        filtered: !!searchParams["in_collectionId"],
-        ...searchable<IRecord, ICollection["id"]>(
-          t("song.name"),
-          (value) =>
-            setSearchParams((old) => ({
-              ...old,
-              in_collectionId: value ? [value] : undefined,
-            })),
-          (value, onChange) => (
-            <CollectionSelector value={value} onChange={onChange} />
-          ),
-        ),
-      },
-      {
         title: t("song.cover"),
         dataIndex: "_cover",
         render: (v) => {
@@ -195,6 +166,46 @@ export default function Song(): ReactElement {
             <Avatar shape="square" size={64} icon={<PictureOutlined />} />
           );
         },
+      },
+      {
+        title: t("collection._"),
+        dataIndex: "_nonArtistNames",
+        render: (_, record) => (
+          <div style={CensoredStyle}>
+            {record._nonArtistIds?.length
+              ? record._nonArtistIds.map((id) => {
+                  const coll = record._collections?.find((i) => i.id === id);
+                  if (!coll) {
+                    return `?${id}?`;
+                  }
+
+                  const color =
+                    CollectionTypes.find((ct) => ct.value === coll.type)
+                      ?.color || "";
+                  return (
+                    <div
+                      key={id}
+                      className={cls(styles.nonArtistName, styles.noWrap)}
+                    >
+                      <Tag color={color}>{coll.name}</Tag>
+                    </div>
+                  );
+                })
+              : "---"}
+          </div>
+        ),
+        filtered: !!searchParams["in_collectionId"],
+        ...searchable<IRecord, ICollection["id"]>(
+          t("song.name"),
+          (value) =>
+            setSearchParams((old) => ({
+              ...old,
+              in_collectionId: value ? [value] : undefined,
+            })),
+          (value, onChange) => (
+            <CollectionSelector value={value} onChange={onChange} />
+          ),
+        ),
       },
       {
         title: t("song.name"),
