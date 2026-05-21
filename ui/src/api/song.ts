@@ -4,6 +4,7 @@ import {
   ICollectionSearchParams,
   ICollectionSongSearchParams,
 } from "../model/collection.ts";
+import { IFFProbeInfo } from "../model/ffprobe.ts";
 import { ILyrics } from "../model/lyrics.ts";
 import { ISong, ISongLyrics } from "../model/song.ts";
 import { CollectionCrudy, CollectionSongCrudy } from "./collection.ts";
@@ -43,6 +44,10 @@ export interface ISongWithCollections extends ISong {
   _nonArtistIds?: ICollection["id"][];
 
   _crowdedSingers?: boolean; // when the count of singers is more than 3
+
+  _parsedFFProbeInfo?: IFFProbeInfo;
+  _duration?: string; // 00:00 format
+  _fileSizeInMB?: number;
 }
 
 export async function fillSongsWithCollections(
@@ -167,6 +172,14 @@ export async function fillSongsWithCollections(
       }
     });
 
+    const ffprobeInfo = ((): IFFProbeInfo | undefined => {
+      try {
+        return JSON.parse(s.ffprobeInfo);
+      } catch {
+        return undefined;
+      }
+    })();
+
     return {
       ...s,
       _collections: cs,
@@ -197,6 +210,22 @@ export async function fillSongsWithCollections(
       _nonArtistNames: nonArtistNames.join(", "),
 
       _crowdedSingers: singerIds.length > 3,
+
+      _parsedFFProbeInfo: ffprobeInfo,
+      _duration: ((): string => {
+        if (!ffprobeInfo?.format?.duration) {
+          return "";
+        }
+        const min = Math.floor(ffprobeInfo.format.duration / 60);
+        const sec = Math.floor(ffprobeInfo.format.duration % 60);
+        return `${`${min}`.padStart(2, "0")}:${`${sec}`.padStart(2, "0")}`;
+      })(),
+      _fileSizeInMB: ((): number | undefined => {
+        if (!ffprobeInfo?.format?.size) {
+          return undefined;
+        }
+        return Math.floor((ffprobeInfo.format.size / 1024 / 1024) * 100) / 100;
+      })(),
     };
   });
 }

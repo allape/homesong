@@ -9,15 +9,19 @@ import (
 type CollectionType string
 
 const (
-	CollectionTypeArtist CollectionType = "artist"
-	CollectionTypeAlbum  CollectionType = "album"
-	CollectionTypeSong   CollectionType = "playlist"
+	CollectionTypePlaylist CollectionType = "playlist"
+	CollectionTypeArtist   CollectionType = "artist"
+	CollectionTypeAlbum    CollectionType = "album"
+	CollectionTypeLanguage CollectionType = "language"
+	CollectionTypeOST      CollectionType = "ost"
 )
 
 var CollectionTypes = []CollectionType{
+	CollectionTypePlaylist,
 	CollectionTypeArtist,
 	CollectionTypeAlbum,
-	CollectionTypeSong,
+	CollectionTypeLanguage,
+	CollectionTypeOST,
 }
 
 type Collection struct {

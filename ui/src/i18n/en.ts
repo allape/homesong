@@ -23,7 +23,8 @@ const TranslationEn = {
 
     song: {
       _: "Song",
-      name: "Name",
+      name: "Name | Title",
+      subtitle: "Subtitle",
       cover: "Cover",
       ffprobeInfo: "FFProbe Info",
       mime: "MIME",
@@ -41,9 +42,11 @@ const TranslationEn = {
       cover: "Cover",
       priority: "Priority",
       types: {
+        playlist: "Playlist",
         artist: "Artist",
         album: "Album",
-        playlist: "Playlist",
+        ost: "OST",
+        language: "Language",
       },
       artistTypes: {
         singer: "Singer/Performer",

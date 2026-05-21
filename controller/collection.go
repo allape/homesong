@@ -22,7 +22,7 @@ func SetupCollectionController(group *gin.RouterGroup, db *gorm.DB) error {
 			"keywords": func(db *gorm.DB, values []string, with url.Values) *gorm.DB {
 				if value, ok := gocrud.PickFirstValuableString(values); ok {
 					likeValue := fmt.Sprintf("%%%s%%", strings.TrimSpace(value))
-					return db.Where("keywords LIKE ? OR name LIKE ? OR id = ?", likeValue, likeValue, value)
+					return db.Where("(`keywords` LIKE ? OR `name` LIKE ? OR `code` LIKE ? OR `id` = ?)", likeValue, likeValue, likeValue, value)
 				}
 				return db
 			},

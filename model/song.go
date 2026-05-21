@@ -9,6 +9,7 @@ import (
 type Song struct {
 	gocrud.Base
 	Name        string `json:"name"`
+	Subtitle    string `json:"subtitle"`
 	Filename    string `json:"filename"`
 	Cover       string `json:"cover"`
 	Digest      string `json:"digest"`

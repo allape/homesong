@@ -24,7 +24,8 @@ const TranslationZh: typeof TranslationEn = {
 
     song: {
       _: "歌曲",
-      name: "歌曲名称",
+      name: "名称｜标题",
+      subtitle: "副标题",
       cover: "封面",
       ffprobeInfo: "FFProbe 信息",
       mime: "MIME",
@@ -42,9 +43,11 @@ const TranslationZh: typeof TranslationEn = {
       cover: "封面",
       priority: "排序权重",
       types: {
+        playlist: "歌单",
         artist: "艺术家",
         album: "专辑",
-        playlist: "歌单",
+        ost: "OST",
+        language: "语言",
       },
       artistTypes: {
         singer: "演唱/演奏",

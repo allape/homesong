@@ -128,6 +128,7 @@ func SetupSongController(group *gin.RouterGroup, db *gorm.DB) error {
 			gocrud.MakeErrorResponse(context, gocrud.RestCoder.BadRequest(), "name cannot be empty")
 			return
 		}
+		song.Subtitle = strings.TrimSpace(song.Subtitle)
 
 		songFormFile := form.File["file"]
 		if len(songFormFile) > 0 {

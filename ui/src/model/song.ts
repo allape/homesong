@@ -9,6 +9,7 @@ import { ILyrics } from "./lyrics.ts";
 
 export interface ISong extends IBase {
   name: string;
+  subtitle: string;
   filename: string;
   cover: string;
   digest: string;

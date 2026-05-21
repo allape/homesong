@@ -150,6 +150,52 @@ export default function Song(): ReactElement {
         width: 80,
       },
       {
+        title: t("collection._"),
+        dataIndex: "_nonArtistNames",
+        render: (_, record) => (
+          <div>
+            <div className="nowrap">{record.mime}</div>
+            <div className="nowrap">
+              {record._duration} - {record._fileSizeInMB || "??"} MB
+            </div>
+            <div style={CensoredStyle}>
+              {record._nonArtistIds?.length
+                ? record._nonArtistIds.map((id) => {
+                    const coll = record._collections?.find((i) => i.id === id);
+                    if (!coll) {
+                      return `?${id}?`;
+                    }
+
+                    const color =
+                      CollectionTypes.find((ct) => ct.value === coll.type)
+                        ?.color || "";
+                    return (
+                      <div
+                        key={id}
+                        className={cls(styles.nonArtistName, styles.noWrap)}
+                      >
+                        <Tag color={color}>{coll.name}</Tag>
+                      </div>
+                    );
+                  })
+                : "---"}
+            </div>
+          </div>
+        ),
+        filtered: !!searchParams["in_collectionId"],
+        ...searchable<IRecord, ICollection["id"]>(
+          t("song.name"),
+          (value) =>
+            setSearchParams((old) => ({
+              ...old,
+              in_collectionId: value ? [value] : undefined,
+            })),
+          (value, onChange) => (
+            <CollectionSelector value={value} onChange={onChange} />
+          ),
+        ),
+      },
+      {
         title: t("song.cover"),
         dataIndex: "_cover",
         render: (v) => {
@@ -168,71 +214,34 @@ export default function Song(): ReactElement {
         },
       },
       {
-        title: t("collection._"),
-        dataIndex: "_nonArtistNames",
-        render: (_, record) => (
-          <div style={CensoredStyle}>
-            {record._nonArtistIds?.length
-              ? record._nonArtistIds.map((id) => {
-                  const coll = record._collections?.find((i) => i.id === id);
-                  if (!coll) {
-                    return `?${id}?`;
-                  }
-
-                  const color =
-                    CollectionTypes.find((ct) => ct.value === coll.type)
-                      ?.color || "";
-                  return (
-                    <div
-                      key={id}
-                      className={cls(styles.nonArtistName, styles.noWrap)}
-                    >
-                      <Tag color={color}>{coll.name}</Tag>
-                    </div>
-                  );
-                })
-              : "---"}
-          </div>
-        ),
-        filtered: !!searchParams["in_collectionId"],
-        ...searchable<IRecord, ICollection["id"]>(
-          t("song.name"),
-          (value) =>
-            setSearchParams((old) => ({
-              ...old,
-              in_collectionId: value ? [value] : undefined,
-            })),
-          (value, onChange) => (
-            <CollectionSelector value={value} onChange={onChange} />
-          ),
-        ),
-      },
-      {
         title: t("song.name"),
         dataIndex: "name",
         ellipsis: { showTitle: true },
         render: (_, record) => (
-          <Flex justifyContent="flex-start">
-            <CopyButton value={record._name} />
-            <Tooltip title={record._name}>
-              <Button
-                type="link"
-                size="small"
-                style={CensoredStyle}
-                onClick={() => {
-                  setPlayerVisible(true);
-                  setSongForPlay({ ...record } as ISongWithCollections);
-                }}
-              >
-                {record._name}
-              </Button>
-            </Tooltip>
-            <span>
-              {record._nonSingerNames
-                ? `+ ${record._nonSingerNames}`
-                : undefined}
-            </span>
-          </Flex>
+          <div>
+            <Flex justifyContent="flex-start">
+              <CopyButton value={record._name} />
+              <Tooltip title={record._name}>
+                <Button
+                  type="link"
+                  size="small"
+                  style={CensoredStyle}
+                  onClick={() => {
+                    setPlayerVisible(true);
+                    setSongForPlay({ ...record } as ISongWithCollections);
+                  }}
+                >
+                  {record._name}
+                </Button>
+              </Tooltip>
+              <span>
+                {record._nonSingerNames
+                  ? `+ ${record._nonSingerNames}`
+                  : undefined}
+              </span>
+            </Flex>
+            <Flex justifyContent="flex-start">{record.subtitle}</Flex>
+          </div>
         ),
         filtered: !!searchParams["like_name"],
         ...searchable(t("song.name"), (value) =>
@@ -241,12 +250,6 @@ export default function Song(): ReactElement {
             like_name: value,
           })),
         ),
-      },
-      {
-        title: t("song.mime"),
-        dataIndex: "mime",
-        align: "center",
-        render: (v) => <div className={styles.noWrap}>{v || "-"}</div>,
       },
       {
         title: t("song.ffprobeInfo"),
@@ -556,10 +559,10 @@ export default function Song(): ReactElement {
 
     if (!kw) {
       setSearchParams((old) => {
-        delete old.like_name;
-        delete old.like_collectionName;
         return {
           ...old,
+          like_name: undefined,
+          like_collectionName: undefined,
         };
       });
       return;
@@ -753,6 +756,10 @@ export default function Song(): ReactElement {
                 placeholder={t("song.name")}
                 onAuxChange={handleCreateArtist}
               />
+            </Form.Item>
+
+            <Form.Item name="subtitle" label={t("song.subtitle")}>
+              <Input maxLength={20_000} placeholder={t("song.subtitle")} />
             </Form.Item>
 
             <Form.Item
