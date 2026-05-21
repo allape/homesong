@@ -62,12 +62,12 @@ export const CollectionTypes: IColoredLV<CollectionType>[] = [
   {
     label: "collection.types.ost",
     value: "ost",
-    color: "aqua",
+    color: "cyan",
   },
   {
     label: "collection.types.language",
     value: "language",
-    color: "skyblue",
+    color: "yellow",
   },
 ];
 
