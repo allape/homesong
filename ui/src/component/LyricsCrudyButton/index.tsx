@@ -157,9 +157,9 @@ export default function LyricsCrudyButton({
       try {
         record.searchText = (record.content || "")
           // remove all [00:00.00]
-          .replace(/\[\d+:\d+(\.\d+)?]/gi, "")
-          // remove all hidden char
-          .replace(/\s/gi, "");
+          .replace(/\[\d+:\d+(\.\d+)?]/gi, "");
+        // remove all hidden char
+        // .replace(/\s/gi, "");
       } catch (e) {
         message.warning(`${t("lyrics._")}: ${stringify(e)}`);
         throw e;
