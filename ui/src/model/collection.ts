@@ -9,7 +9,12 @@ import { useMemo } from "react";
 import { useTranslation } from "react-i18next";
 import { ISong } from "./song.ts";
 
-export type CollectionType = "playlist" | "artist" | "album" | "language" | "ost";
+export type CollectionType =
+  | "playlist"
+  | "artist"
+  | "album"
+  | "language"
+  | "ost";
 
 export interface ICollection extends IBase {
   type: CollectionType;
@@ -73,7 +78,10 @@ export const CollectionTypes: IColoredLV<CollectionType>[] = [
 
 export const ArtistCollectionTypes: CollectionType[] = ["artist"];
 
-export const NonArtistCollectionTypes: CollectionType[] = ["album", "playlist"];
+export const NonArtistCollectionTypes: CollectionType[] =
+  CollectionTypes.filter((ct) => !ArtistCollectionTypes.includes(ct.value)).map(
+    (ct) => ct.value,
+  );
 
 export type Role =
   | "singer"
