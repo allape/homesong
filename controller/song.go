@@ -89,6 +89,7 @@ func SetupSongController(group *gin.RouterGroup, db *gorm.DB) error {
 						)`,
 						value,
 						value,
+						value,
 					)
 				}
 				return db
