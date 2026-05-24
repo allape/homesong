@@ -561,7 +561,7 @@ export default function Song(): ReactElement {
       setSearchParams((old) => {
         return {
           ...old,
-          like_name: undefined,
+          keywords: undefined,
           like_collectionName: undefined,
         };
       });
@@ -577,7 +577,7 @@ export default function Song(): ReactElement {
         .trim();
       setSearchParams((old) => ({
         ...old,
-        like_name: songName,
+        keywords: songName,
         like_collectionName: singerName,
       }));
       return;
@@ -585,7 +585,7 @@ export default function Song(): ReactElement {
 
     setSearchParams((old) => ({
       ...old,
-      like_name: kw,
+      keywords: kw,
       like_collectionName: undefined,
     }));
   }, [keywordsRef]);

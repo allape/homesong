@@ -20,7 +20,10 @@ export interface ISong extends IBase {
 }
 
 export interface ISongSearchParams
-  extends IBaseSearchParams, Pick<ITimeSortSearchParams, 'orderBy_createdAt' | 'orderBy_updatedAt'> {
+  extends
+    IBaseSearchParams,
+    Pick<ITimeSortSearchParams, "orderBy_createdAt" | "orderBy_updatedAt"> {
+  keywords?: string;
   like_name?: string;
   like_collectionName?: string;
   in_id?: ISong["id"][];

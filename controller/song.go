@@ -70,6 +70,13 @@ func SetupSongController(group *gin.RouterGroup, db *gorm.DB) error {
 				}
 				return db
 			},
+			"keywords": func(db *gorm.DB, values []string, with url.Values) *gorm.DB {
+				if value, ok := gocrud.PickFirstValuableString(values); ok {
+					value = fmt.Sprintf("%%%s%%", value)
+					return db.Where("`name` LIKE ? OR `subtitle` LIKE ?", value, value)
+				}
+				return db
+			},
 			"like_collectionName": func(db *gorm.DB, values []string, with url.Values) *gorm.DB {
 				if value, ok := gocrud.PickFirstValuableString(values); ok {
 					value = fmt.Sprintf("%%%s%%", value)
@@ -78,7 +85,7 @@ func SetupSongController(group *gin.RouterGroup, db *gorm.DB) error {
 						id IN (
 							SELECT collection_songs.song_id FROM collection_songs 
 							LEFT JOIN collections ON collection_songs.collection_id = collections.id
-							WHERE (collections.name LIKE ? OR collections.keywords LIKE ?)
+							WHERE (collections.name LIKE ? OR collections.keywords LIKE ? OR collections.code LIKE ?)
 						)`,
 						value,
 						value,
