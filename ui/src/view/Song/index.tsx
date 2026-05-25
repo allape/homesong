@@ -160,24 +160,23 @@ export default function Song(): ReactElement {
             </div>
             <div style={CensoredStyle}>
               {record._nonArtistIds?.length
-                ? record._nonArtistIds.map((id) => {
-                    const coll = record._collections?.find((i) => i.id === id);
-                    if (!coll) {
-                      return `?${id}?`;
-                    }
-
-                    const color =
-                      CollectionTypes.find((ct) => ct.value === coll.type)
-                        ?.color || "";
-                    return (
-                      <div
-                        key={id}
-                        className={cls(styles.nonArtistName, styles.noWrap)}
-                      >
-                        <Tag color={color}>{coll.name}</Tag>
-                      </div>
-                    );
-                  })
+                ? record._nonArtistIds
+                    .map((id) => record._collections?.find((i) => i.id === id))
+                    .filter((i) => !!i)
+                    .sort((a, b) => a.type.localeCompare(b.type))
+                    .map((coll) => {
+                      const color =
+                        CollectionTypes.find((ct) => ct.value === coll.type)
+                          ?.color || "";
+                      return (
+                        <div
+                          key={coll.id}
+                          className={cls(styles.nonArtistName, styles.noWrap)}
+                        >
+                          <Tag color={color}>{coll.name}</Tag>
+                        </div>
+                      );
+                    })
                 : "---"}
             </div>
           </div>
