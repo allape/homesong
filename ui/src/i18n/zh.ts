@@ -46,8 +46,9 @@ const TranslationZh: typeof TranslationEn = {
         playlist: "歌单",
         artist: "艺术家",
         album: "专辑",
-        ost: "OST",
         language: "语言",
+        ost: "OST",
+        opera: "戏剧｜歌剧",
       },
       artistTypes: {
         singer: "演唱/演奏",

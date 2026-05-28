@@ -14,7 +14,8 @@ export type CollectionType =
   | "artist"
   | "album"
   | "language"
-  | "ost";
+  | "ost"
+  | "opera";
 
 export interface ICollection extends IBase {
   type: CollectionType;
@@ -65,14 +66,19 @@ export const CollectionTypes: IColoredLV<CollectionType>[] = [
     color: "orange",
   },
   {
+    label: "collection.types.language",
+    value: "language",
+    color: "yellow",
+  },
+  {
     label: "collection.types.ost",
     value: "ost",
     color: "cyan",
   },
   {
-    label: "collection.types.language",
-    value: "language",
-    color: "yellow",
+    label: "collection.types.opera",
+    value: "opera",
+    color: "lime",
   },
 ];
 

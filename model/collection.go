@@ -14,6 +14,7 @@ const (
 	CollectionTypeAlbum    CollectionType = "album"
 	CollectionTypeLanguage CollectionType = "language"
 	CollectionTypeOST      CollectionType = "ost"
+	CollectionTypeOpera    CollectionType = "opera"
 )
 
 var CollectionTypes = []CollectionType{
@@ -22,6 +23,7 @@ var CollectionTypes = []CollectionType{
 	CollectionTypeAlbum,
 	CollectionTypeLanguage,
 	CollectionTypeOST,
+	CollectionTypeOpera,
 }
 
 type Collection struct {

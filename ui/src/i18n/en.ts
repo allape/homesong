@@ -45,8 +45,9 @@ const TranslationEn = {
         playlist: "Playlist",
         artist: "Artist",
         album: "Album",
-        ost: "OST",
         language: "Language",
+        ost: "OST",
+        opera: "Opera | Drama",
       },
       artistTypes: {
         singer: "Singer/Performer",
