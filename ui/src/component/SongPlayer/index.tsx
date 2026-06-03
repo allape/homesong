@@ -643,7 +643,11 @@ function SongList({ song, songs, onChange }: ISongListProps): ReactElement {
                   icon={item._cover ? undefined : <PictureOutlined />}
                 />
               }
-              title={<div className={styles.name}>{item.name}</div>}
+              title={
+                <div className={styles.name}>
+                  {item.name} {item.subtitle}
+                </div>
+              }
               description={
                 <span className={styles.description}>
                   {item._singerNames}{" "}
