@@ -436,7 +436,7 @@ export default function SongPlayer({
 
   const title = useMemo(() => {
     if (song?._crowdedSingers) {
-      return `${t("player.multipleSingers")} - ${song.name}`;
+      return `${song.name} - ${t("player.multipleSingers")}`;
     }
 
     if (song?._name) {
