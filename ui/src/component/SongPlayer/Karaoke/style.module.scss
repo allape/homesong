@@ -86,6 +86,12 @@
     opacity: 0.1;
     text-shadow: none;
 
+    @media (pointer: fine) {
+      &.fullscreen {
+        opacity: 0;
+      }
+    }
+
     &:hover {
       opacity: 1;
     }

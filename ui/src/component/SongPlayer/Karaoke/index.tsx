@@ -147,16 +147,14 @@ export default function Karaoke({
           classNames={lyricsStyles}
         />
       )}
-      {!fullscreen && (
-        <Select<ILyrics["id"]>
-          loading={loading}
-          className={styles.selector}
-          value={currentLyrics?.id}
-          options={options}
-          onChange={handleChange}
-          placeholder={options.length ? t("lyrics._") : t("player.noLyrics")}
-        />
-      )}
+      <Select<ILyrics["id"]>
+        loading={loading}
+        className={cls(styles.selector, fullscreen && styles.fullscreen)}
+        value={currentLyrics?.id}
+        options={options}
+        onChange={handleChange}
+        placeholder={options.length ? t("lyrics._") : t("player.noLyrics")}
+      />
     </div>
   );
 }

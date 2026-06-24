@@ -246,6 +246,9 @@ export default function SongPlayer({
       return;
     }
 
+    // always show lyrics when view is changed by song from outside
+    setView("lyrics");
+
     const found = songsRef.current.find((s) => s.id === songFromProps.id);
     if (found) {
       setSong(found);
