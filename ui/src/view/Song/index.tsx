@@ -148,6 +148,13 @@ export default function Song(): ReactElement {
         title: t("id"),
         dataIndex: "id",
         width: 80,
+        filtered: !!searchParams["in_id"],
+        ...searchable<IRecord, IRecord["id"]>(t("id"), (value) =>
+          setSearchParams((old) => ({
+            ...old,
+            in_id: value ? [value] : undefined,
+          })),
+        ),
       },
       {
         title: t("collection._"),
