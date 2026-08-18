@@ -18,9 +18,10 @@ const TranslationZh: typeof TranslationEn = {
     createArtistsFastTips:
       "快速创建艺术家, 用逗号或斜杠分隔, 例如：'艺术家1，艺术家2/艺术家3'",
     required: "{{name}} 是必填项",
-    songSearch: "搜索歌曲, 如：歌名 - 歌手",
+    songSearch: "搜索",
     refineLyrics: "优化歌词",
     createSongFirst: "请先创建歌曲",
+    priority: "排序权重",
 
     song: {
       _: "歌曲",
@@ -30,7 +31,6 @@ const TranslationZh: typeof TranslationEn = {
       ffprobeInfo: "FFProbe 信息",
       mime: "MIME",
       description: "描述",
-      priority: "排序权重",
       artistName: "艺术家名称",
     },
     collection: {
@@ -41,7 +41,6 @@ const TranslationZh: typeof TranslationEn = {
       description: "描述",
       keywords: "关键词",
       cover: "封面",
-      priority: "排序权重",
       types: {
         playlist: "歌单",
         artist: "艺术家",
@@ -63,7 +62,6 @@ const TranslationZh: typeof TranslationEn = {
       _: "歌词",
       name: "名称",
       content: ".lrcp",
-      priority: "排序权重",
       description: "描述",
       fromStandardLRC: "从标准 LRC 解析",
       howToMakeLRCPLyrics: "如何制作 .lrcp 歌词？",

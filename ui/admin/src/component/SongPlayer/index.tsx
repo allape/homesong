@@ -25,12 +25,11 @@ import {
 import { useTranslation } from "react-i18next";
 import {
   fillSongsWithCollections,
-  ISongWithCollections,
+  ISongModified,
   SongCrudy,
 } from "../../api/song.ts";
 import useDragger from "../../hook/useDragger.tsx";
 import { ICollection } from "../../model/collection.ts";
-import { ISongSearchParams } from "../../model/song.ts";
 import CollectionSelector, {
   ICollectionSelectorProps,
 } from "../CollectionSelector";
@@ -43,11 +42,11 @@ import PlayerEventEmitter from "./Player/eventemitter.ts";
 import styles from "./style.module.scss";
 
 export interface ISongPlayerProps {
-  song?: ISongWithCollections;
+  song?: ISongModified;
   onClose?: () => void;
 }
 
-function modifySong(s: ISongWithCollections): IModifiedSong {
+function modifySong(s: ISongModified): IModifiedSong {
   return {
     ...s,
     _url: s.mime
@@ -206,13 +205,12 @@ export default function SongPlayer({
       //   return;
       // }
 
-      const songs = await SongCrudy.all<ISongSearchParams>({
+      const songs = await SongCrudy.all({
         ...BaseSearchParams,
         in_collectionId: collectionRef.current
           ? [collectionRef.current]
           : undefined,
-        orderBy_updatedAt: "desc",
-        orderBy_priority: "desc",
+        sortByPriorityThenUpdatedAt: true,
       });
 
       const swcs = await fillSongsWithCollections(songs);

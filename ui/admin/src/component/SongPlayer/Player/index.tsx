@@ -87,7 +87,7 @@ export default function Player({
     navigator.mediaSession.metadata = new MediaMetadata({
       title: song.name,
       artist: song._singerNames,
-      album: song._nonArtistNames,
+      album: song._collectionNameSets?._,
       artwork: song._cover
         ? [
             {

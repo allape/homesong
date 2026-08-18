@@ -1,13 +1,13 @@
 FROM node:25 AS ui_builder
 
-WORKDIR /build
+WORKDIR /build/ui
 
-COPY ui/package.json        .
-COPY ui/package-lock.json   .
+COPY ./ui/admin/package.json        .
+COPY ./ui/admin/package-lock.json   .
 
 RUN npm install --no-audit
 
-COPY ui .
+COPY ./ui/admin .
 
 RUN npm run build
 
@@ -30,18 +30,22 @@ RUN apk add --no-cache ffmpeg
 
 WORKDIR /app
 
-COPY --from=ui_builder /build/dist ui/dist
+COPY --from=ui_builder /build/ui/dist ui/admin/dist
 COPY --from=builder /build/app app
 
 EXPOSE 8080
 
 CMD [ "/app/app" ]
 
-### build ###
-# export docker_http_proxy=http://host.docker.internal:1080
-# docker build --platform linux/amd64 --build-arg http_proxy=$docker_http_proxy --build-arg https_proxy=$docker_http_proxy -f Dockerfile -t allape/homesong:latest .
-# docker tag allape/homesong:latest docker-registry.lan.allape.cc/allape/homesong:latest && docker push docker-registry.lan.allape.cc/allape/homesong:latest
+### BUILD ###
+# export x_docker_http_proxy="http://host.docker.internal:1080"
+# export x_docker_image_name="allape/homesong"
+# export x_docker_registry_prefix="docker-registry.lan.allape.cc/"
+# export x_docker_registry_image_name="$x_docker_registry_prefix$x_docker_image_name"
 
-# sudo docker pull docker-registry.lan.allape.cc/allape/homesong:latest && sudo docker tag docker-registry.lan.allape.cc/allape/homesong:latest allape/homesong:latest
-# sudo docker compose -f compose.homesong.yaml up -d
+# docker build --platform linux/amd64 --build-arg http_proxy=$x_docker_http_proxy --build-arg https_proxy=$x_docker_http_proxy -f Dockerfile -t $x_docker_image_name .
+# docker tag $x_docker_image_name $x_docker_registry_image_name && docker push $x_docker_registry_image_name
+
+# sudo docker pull $x_docker_registry_image_name && sudo docker tag $x_docker_registry_image_name $x_docker_image_name
+# sudo docker compose -f docker.compose.yaml up -d
 

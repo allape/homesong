@@ -56,7 +56,7 @@ export default function CollectionCrudyButton(
         dataIndex: "id",
       },
       {
-        title: <span className="nowrap">{t("collection.priority")}</span>,
+        title: <span className="nowrap">{t("priority")}</span>,
         dataIndex: "priority",
       },
       {
@@ -154,8 +154,9 @@ export default function CollectionCrudyButton(
   );
 
   return (
-    <CrudyButton
+    <CrudyButton<IRecord, ISearchParams>
       name={t("collection._")}
+      titleSearchField="keywords"
       columns={columns}
       crudy={CollectionCrudy}
       searchParams={searchParams}
@@ -168,11 +169,13 @@ export default function CollectionCrudyButton(
       <Form.Item name="cover" label={t("collection.cover")}>
         <Uploader serverURL={config.SERVER_STATIC_URL} accept="image/*" />
       </Form.Item>
-      <Form.Item name="priority" label={t("collection.priority")}>
+      <Form.Item name="priority" label={t("priority")}>
         <InputNumber
           step={1}
           precision={0}
-          placeholder={t("collection.priority")}
+          min={Number.MIN_SAFE_INTEGER}
+          max={Number.MAX_SAFE_INTEGER}
+          placeholder={t("priority")}
         />
       </Form.Item>
       <Form.Item

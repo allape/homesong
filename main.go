@@ -72,9 +72,19 @@ func main() {
 
 	apiGrp := engine.Group("/api")
 
+	err = controller.SetupLyricsController(apiGrp.Group("/lyrics"), db)
+	if err != nil {
+		l.Error().Fatalf("Failed to setup lyrics controller: %v", err)
+	}
+
 	err = controller.SetupSongController(apiGrp.Group("/song"), db)
 	if err != nil {
 		l.Error().Fatalf("Failed to setup song controller: %v", err)
+	}
+
+	err = controller.SetupSongLyricsController(apiGrp.Group("/song-lyrics"), db)
+	if err != nil {
+		l.Error().Fatalf("Failed to setup song lyrics controller: %v", err)
 	}
 
 	err = controller.SetupCollectionController(apiGrp.Group("/collection"), db)
@@ -82,15 +92,13 @@ func main() {
 		l.Error().Fatalf("Failed to setup collection controller: %v", err)
 	}
 
-	err = controller.SetupLyricsController(apiGrp.Group("/lyrics"), db)
+	err = controller.SetupCollectionSongController(apiGrp.Group("/collection-song"), db)
 	if err != nil {
-		l.Error().Fatalf("Failed to setup lyrics controller: %v", err)
+		l.Error().Fatalf("Failed to setup collection song controller: %v", err)
 	}
 
-	err = gocrud.NewHttpFileSystem(engine.Group("/static"), env.StaticFolder, &gocrud.HttpFileSystemConfig{
-		AllowOverwrite: false,
-		AllowUpload:    true,
-		EnableDigest:   true,
+	err = gocrud.NewHttpFileSystemController(engine.Group("/static"), env.StaticFolder, &gocrud.HttpFileSystemConfig{
+		AllowUpload: true,
 	})
 
 	err = gocrud.NewSingleHTMLServe(engine.Group("/ui"), env.UIFolder, &gocrud.SingleHTMLServeConfig{

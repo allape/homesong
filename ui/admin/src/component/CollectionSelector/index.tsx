@@ -11,8 +11,9 @@ import {
   NonArtistCollectionTypes,
 } from "../../model/collection.ts";
 
-export interface ICollectionSelectorProps
-  extends Partial<ICrudySelectorProps<ICollection>> {
+export interface ICollectionSelectorProps extends Partial<
+  ICrudySelectorProps<ICollection>
+> {
   types?: ICollection["type"][];
 }
 
@@ -36,9 +37,10 @@ export default function CollectionSelector({
       placeholder={`${t("select")} ${t("collection._")}`}
       {...props}
       crudy={CollectionCrudy}
-      pageSize={100}
+      pageSize={50}
       searchParams={sp}
       searchPropName="keywords"
+      inKeyword="in_id"
     />
   );
 }

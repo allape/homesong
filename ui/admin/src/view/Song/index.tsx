@@ -50,15 +50,15 @@ import {
 } from "react";
 import { useTranslation } from "react-i18next";
 import {
+  CollectionSongHandler,
   createOrGetCollectionsByArtistNames,
-  saveCollectionSongsBySong,
 } from "../../api/collection.ts";
 import {
   fillSongsWithCollections,
   getLyrics,
-  ISongWithCollections,
-  saveLyricsBySong,
+  ISongModified,
   SongCrudy,
+  SongLyricsHandler,
   upload,
 } from "../../api/song.ts";
 import CollectionCrudyButton from "../../component/CollectionCrudyButton";
@@ -77,7 +77,11 @@ import {
   LyricsRemoteTouchpadMQTTClientID,
   LyricsRemoteTouchpadMQTTURL,
 } from "../../config/lyrics.ts";
-import { CollectionTypes, ICollection } from "../../model/collection.ts";
+import {
+  CollectionTypes,
+  FromCollectionIds,
+  ICollection,
+} from "../../model/collection.ts";
 import { ILyrics } from "../../model/lyrics.ts";
 import { ISongSearchParams } from "../../model/song.ts";
 import styles from "./style.module.scss";
@@ -86,9 +90,7 @@ const LyricsCrudyButtonModalProps: ModalProps = {
   forceRender: true,
 };
 
-type ISearchParams = ISongSearchParams;
-
-interface IRecord extends ISongWithCollections {
+interface IRecord extends ISongModified {
   _continuesUpload?: boolean;
   _keepCover?: boolean;
 
@@ -99,7 +101,17 @@ interface IRecord extends ISongWithCollections {
   _download?: string;
   _cover?: string;
   _name?: string;
+
+  _nonArtistIds?: ICollection["id"][];
+  _singerIds?: ICollection["id"][];
+  _lyricistIds?: ICollection["id"][];
+  _composerIds?: ICollection["id"][];
+  _arrangerIds?: ICollection["id"][];
+  _producerIds?: ICollection["id"][];
+  _otherIds?: ICollection["id"][];
 }
+
+type ISearchParams = ISongSearchParams;
 
 // For demo screenshots
 const CensoredStyle: CSSProperties = {
@@ -136,9 +148,7 @@ export default function Song(): ReactElement {
   const [playerVisible, setPlayerVisible] = useState<boolean>(
     () => window.innerWidth <= 600,
   );
-  const [songForPlay, setSongForPlay] = useState<
-    ISongWithCollections | undefined
-  >();
+  const [songForPlay, setSongForPlay] = useState<ISongModified | undefined>();
 
   const [keywords, keywordsRef, setKeywords] = useProxy<string>("");
 
@@ -166,25 +176,21 @@ export default function Song(): ReactElement {
               {record._duration} - {record._fileSizeInMB || "??"} MB
             </div>
             <div style={CensoredStyle}>
-              {record._nonArtistIds?.length
-                ? record._nonArtistIds
-                    .map((id) => record._collections?.find((i) => i.id === id))
-                    .filter((i) => !!i)
-                    .sort((a, b) => a.type.localeCompare(b.type))
-                    .map((coll) => {
-                      const color =
-                        CollectionTypes.find((ct) => ct.value === coll.type)
-                          ?.color || "";
-                      return (
-                        <div
-                          key={coll.id}
-                          className={cls(styles.nonArtistName, styles.noWrap)}
-                        >
-                          <Tag color={color}>{coll.name}</Tag>
-                        </div>
-                      );
-                    })
-                : "---"}
+              {record._collectionSets?._?.sort((a, b) =>
+                a.type.localeCompare(b.type),
+              ).map((coll) => {
+                const color =
+                  CollectionTypes.find((ct) => ct.value === coll.type)?.color ||
+                  "";
+                return (
+                  <div
+                    key={coll.id}
+                    className={cls(styles.nonArtistName, styles.noWrap)}
+                  >
+                    <Tag color={color}>{coll.name}</Tag>
+                  </div>
+                );
+              }) || "---"}
             </div>
           </div>
         ),
@@ -234,7 +240,7 @@ export default function Song(): ReactElement {
                   style={CensoredStyle}
                   onClick={() => {
                     setPlayerVisible(true);
-                    setSongForPlay({ ...record } as ISongWithCollections);
+                    setSongForPlay({ ...record } as ISongModified);
                   }}
                 >
                   {record._name}
@@ -294,6 +300,14 @@ export default function Song(): ReactElement {
           _cover: s.cover ? `${config.SERVER_STATIC_URL}${s.cover}` : undefined,
 
           _name: name,
+
+          _nonArtistIds: s._collectionIdSets?._,
+          _singerIds: s._collectionIdSets?.singer,
+          _lyricistIds: s._collectionIdSets?.lyricist,
+          _composerIds: s._collectionIdSets?.composer,
+          _arrangerIds: s._collectionIdSets?.arranger,
+          _producerIds: s._collectionIdSets?.producer,
+          _otherIds: s._collectionIdSets?.other,
         };
       });
     },
@@ -301,36 +315,40 @@ export default function Song(): ReactElement {
   );
 
   const handleSave = useCallback(async (record: IRecord): Promise<IRecord> => {
-    const song = await upload(record, fileRef.current);
+    const song = await upload(
+      {
+        ...record,
+        _nonArtistIds: undefined,
+        _singerIds: undefined,
+        _lyricistIds: undefined,
+        _composerIds: undefined,
+        _arrangerIds: undefined,
+        _producerIds: undefined,
+        _otherIds: undefined,
+      } as IRecord,
+      fileRef.current,
+    );
 
     fileRef.current = undefined;
 
-    await saveCollectionSongsBySong(song.id, "_", record._nonArtistIds || []);
+    await CollectionSongHandler.saveAfterDelete("songId", song.id, [
+      ...FromCollectionIds(record._nonArtistIds || [], song.id, "_"),
+      ...FromCollectionIds(record._singerIds || [], song.id, "singer"),
+      ...FromCollectionIds(record._lyricistIds || [], song.id, "lyricist"),
+      ...FromCollectionIds(record._composerIds || [], song.id, "composer"),
+      ...FromCollectionIds(record._arrangerIds || [], song.id, "arranger"),
+      ...FromCollectionIds(record._producerIds || [], song.id, "producer"),
+      ...FromCollectionIds(record._otherIds || [], song.id, "other"),
+    ]);
 
-    await saveCollectionSongsBySong(song.id, "singer", record._singerIds || []);
-    await saveCollectionSongsBySong(
+    await SongLyricsHandler.saveAfterDelete(
+      "songId",
       song.id,
-      "lyricist",
-      record._lyricistIds || [],
+      record._lyricsIds?.map((li) => ({
+        songId: song.id,
+        lyricsId: li,
+      })) || [],
     );
-    await saveCollectionSongsBySong(
-      song.id,
-      "composer",
-      record._composerIds || [],
-    );
-    await saveCollectionSongsBySong(
-      song.id,
-      "arranger",
-      record._arrangerIds || [],
-    );
-    await saveCollectionSongsBySong(
-      song.id,
-      "producer",
-      record._producerIds || [],
-    );
-    await saveCollectionSongsBySong(song.id, "other", record._otherIds || []);
-
-    await saveLyricsBySong(song.id, record._lyricsIds || []);
 
     return song;
   }, []);
@@ -433,10 +451,7 @@ export default function Song(): ReactElement {
   );
 
   const handleCreateArtist = useCallback(
-    async (
-      preset: string = "",
-      targetField: keyof ISongWithCollections = "_singerIds",
-    ) => {
+    async (preset: string = "", targetField: keyof IRecord = "_singerIds") => {
       const res = preset || window.prompt(t("createArtistsFastTips"));
       if (!res) {
         return;
@@ -453,7 +468,7 @@ export default function Song(): ReactElement {
 
       const artists = await createOrGetCollectionsByArtistNames(names);
 
-      message.success(t("created"));
+      message.success(t("created")).then();
 
       const existingCollections = form?.getFieldValue(targetField) || [];
       form?.setFieldValue(
@@ -555,7 +570,7 @@ export default function Song(): ReactElement {
   const lastSearchedKeywordsRef = useRef<string>("");
 
   const handleKeywordsSearch = useCallback(() => {
-    const kw = keywordsRef.current.trim();
+    let kw = keywordsRef.current.trim();
 
     if (kw === lastSearchedKeywordsRef.current) {
       return;
@@ -568,32 +583,30 @@ export default function Song(): ReactElement {
         return {
           ...old,
           keywords: undefined,
-          like_collectionName: undefined,
+          like_name: undefined,
         };
       });
       return;
     }
 
-    const indexOfDash = kw.indexOf("-");
-    if (indexOfDash > -1) {
-      const songName = kw.slice(0, indexOfDash).trim();
-      const singerName = kw
-        .slice(indexOfDash + 1)
-        .split("&")[0]
-        .trim();
-      setSearchParams((old) => ({
-        ...old,
-        keywords: songName,
-        like_collectionName: singerName,
-      }));
-      return;
+    const searchByName = /^["“]/.test(kw);
+    if (searchByName) {
+      kw = kw.replace(/^["“]+/, "");
     }
 
-    setSearchParams((old) => ({
-      ...old,
-      keywords: kw,
-      like_collectionName: undefined,
-    }));
+    if (searchByName) {
+      setSearchParams((old) => ({
+        ...old,
+        like_name: kw,
+        keywords: undefined,
+      }));
+    } else {
+      setSearchParams((old) => ({
+        ...old,
+        like_name: undefined,
+        keywords: kw,
+      }));
+    }
   }, [keywordsRef]);
 
   const handleRefineLyrics = useCallback(async () => {
@@ -632,7 +645,7 @@ export default function Song(): ReactElement {
 
   return (
     <>
-      <CrudyTable<IRecord>
+      <CrudyTable<IRecord, ISearchParams>
         className={cls(styles.wrapper, playerVisible && styles.playerVisible)}
         name={t("song._")}
         crudy={SongCrudy}
@@ -740,11 +753,13 @@ export default function Song(): ReactElement {
               />
             </Form.Item>
 
-            <Form.Item name="priority" label={t("song.priority")}>
+            <Form.Item name="priority" label={t("priority")}>
               <InputNumber
                 step={1}
                 precision={0}
-                placeholder={t("song.priority")}
+                min={Number.MIN_SAFE_INTEGER}
+                max={Number.MAX_SAFE_INTEGER}
+                placeholder={t("priority")}
               />
             </Form.Item>
 

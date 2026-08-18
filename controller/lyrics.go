@@ -1,8 +1,8 @@
 package controller
 
 import (
+	"fmt"
 	"net/http"
-	"net/url"
 	"strings"
 
 	"github.com/allape/gocrud"
@@ -11,22 +11,22 @@ import (
 	"gorm.io/gorm"
 )
 
+var lyricsl = l.New("lyrics")
+
 func SetupLyricsController(group *gin.RouterGroup, db *gorm.DB) error {
-	err := gocrud.New(group, db, gocrud.Crud[model.Lyrics]{
-		DefaultPageSize: DefaultPageSize,
-		SearchHandlers: map[string]gocrud.SearchHandler{
-			"like_name":         gocrud.KeywordLike("name", nil),
-			"like_searchText":   gocrud.KeywordLike("search_text", nil),
-			"in_id":             gocrud.KeywordIDIn("id", gocrud.OverflowedArrayTrimmerFilter[gocrud.ID](DefaultPageSize)),
-			"deleted":           gocrud.NewSoftDeleteSearchHandler("lyrics"),
-			"orderBy_priority":  gocrud.SortBy("priority"),
-			"orderBy_createdAt": gocrud.SortBy("created_at"),
-			"orderBy_updatedAt": gocrud.SortBy("updated_at"),
-			"orderByDefault": func(db *gorm.DB, values []string, with url.Values) *gorm.DB {
-				return db.Order("`priority` DESC, `updated_at` DESC")
+	err := gocrud.Setup(group, db, lyricsl.New("crud"), &gocrud.Crud[model.Lyrics]{
+		EnableGetAll: true,
+		SearchHandlers: gocrud.BaseSearchHandlers(gocrud.SearchHandlers{
+			"like_name":       gocrud.KeywordLike("name", nil),
+			"like_searchText": gocrud.KeywordLike("search_text", nil),
+			"keywords": func(db *gorm.DB, values []string, _ *gin.Context) (*gorm.DB, error) {
+				if value, ok := gocrud.PickFirstValuableString(values); ok {
+					likeValue := fmt.Sprintf("%%%s%%", strings.TrimSpace(value))
+					return db.Where("`name` LIKE ? OR `search_text` LIKE ?", likeValue, likeValue), nil
+				}
+				return db, nil
 			},
-		},
-		OnDelete: gocrud.NewSoftDeleteHandler[model.Lyrics](gocrud.RestCoder),
+		}),
 		WillSave: func(record *model.Lyrics, context *gin.Context, db *gorm.DB) {
 			record.Name = strings.TrimSpace(record.Name)
 		},

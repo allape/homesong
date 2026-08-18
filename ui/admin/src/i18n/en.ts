@@ -17,9 +17,10 @@ const TranslationEn = {
     createArtistsFastTips:
       "Create artists, split by comma or slash, e.g. 'Artist1, Artist2/Artist3'",
     required: "{{name}} is required",
-    songSearch: 'Search in "Song Name - Collection Name"',
+    songSearch: 'Search',
     refineLyrics: "Refine Lyrics",
     createSongFirst: "Please create a song first before this action",
+    priority: "Priority",
 
     song: {
       _: "Song",
@@ -29,7 +30,6 @@ const TranslationEn = {
       ffprobeInfo: "FFProbe Info",
       mime: "MIME",
       description: "Description",
-      priority: "Priority",
       artistName: "Artist Name",
     },
     collection: {
@@ -40,7 +40,6 @@ const TranslationEn = {
       description: "Description",
       keywords: "Keywords",
       cover: "Cover",
-      priority: "Priority",
       types: {
         playlist: "Playlist",
         artist: "Artist",
@@ -62,7 +61,6 @@ const TranslationEn = {
       _: "Lyrics",
       name: "Name",
       content: ".lrcp",
-      priority: "Priority",
       description: "Description",
       fromStandardLRC: "Parse from Standard LRC",
       howToMakeLRCPLyrics: "How to make .lrcp lyrics?",

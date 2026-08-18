@@ -29,7 +29,6 @@ var CollectionTypes = []CollectionType{
 type Collection struct {
 	gocrud.Base
 	Type        CollectionType `json:"type"`
-	Priority    int64          `json:"priority"`
 	Cover       string         `json:"cover"`
 	Name        string         `json:"name"`     // human-readable name
 	Keywords    string         `json:"keywords"` // search keywords
@@ -60,8 +59,8 @@ var Roles = []Role{
 }
 
 type CollectionSong struct {
-	SongID       gocrud.ID `json:"songId"`
-	CollectionID gocrud.ID `json:"collectionId"`
-	Role         Role      `json:"role" gorm:"default:'_'"`
+	SongID       gocrud.ID `json:"songId" gorm:"index:idx_collection_song"`
+	CollectionID gocrud.ID `json:"collectionId" gorm:"index:idx_collection_song"`
+	Role         Role      `json:"role" gorm:"default:'_';index:idx_collection_song"`
 	CreatedAt    time.Time `json:"createdAt" gorm:"autoCreateTime;<-:create"`
 }

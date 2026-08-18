@@ -2,8 +2,8 @@ database
 static
 testdata
 
-ui/dist
-ui/node_modules
-ui/.env.development.local
+admin/dist
+admin/node_modules
+admin/.env.development.local
 
 .DS_Store

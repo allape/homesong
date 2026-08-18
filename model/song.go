@@ -16,11 +16,10 @@ type Song struct {
 	MIME        string `json:"mime"`
 	FFProbeInfo string `json:"ffprobeInfo"`
 	Description string `json:"description"`
-	Priority    int64  `json:"priority"`
 }
 
 type SongLyrics struct {
-	SongID    gocrud.ID `json:"songId"`
-	LyricsID  gocrud.ID `json:"lyricsId"`
+	SongID    gocrud.ID `json:"songId" gorm:"primaryKey"`
+	LyricsID  gocrud.ID `json:"lyricsId" gorm:"primaryKey"`
 	CreatedAt time.Time `json:"createdAt" gorm:"autoCreateTime;<-:create"`
 }

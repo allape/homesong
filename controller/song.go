@@ -24,6 +24,8 @@ import (
 	"gorm.io/gorm"
 )
 
+var songl = l.New("song")
+
 // region Credits: github.com/gin-gonic/gin@v1.10.0/context.go:1097
 
 func isASCII(s string) bool {
@@ -46,42 +48,26 @@ func escapeQuotes(s string) string {
 var compressLocker = &sync.Mutex{}
 
 func SetupSongController(group *gin.RouterGroup, db *gorm.DB) error {
-	err := gocrud.New(group, db, gocrud.Crud[model.Song]{
-		DisableSave:     true,
-		EnableGetAll:    true,
-		DefaultPageSize: DefaultPageSize,
-		SearchHandlers: map[string]gocrud.SearchHandler{
-			"like_name":         gocrud.KeywordLike("name", nil),
-			"in_id":             gocrud.KeywordIDIn("id", gocrud.OverflowedArrayTrimmerFilter[gocrud.ID](DefaultPageSize)),
-			"deleted":           gocrud.NewSoftDeleteSearchHandler("songs"),
-			"orderBy_priority":  gocrud.SortBy("priority"),
-			"orderBy_createdAt": gocrud.SortBy("created_at"),
-			"orderBy_updatedAt": gocrud.SortBy("updated_at"),
-			"orderByDefault": func(db *gorm.DB, values []string, with url.Values) *gorm.DB {
-				return db.Order("`priority` DESC, `updated_at` DESC")
-			},
-			"in_collectionId": func(db *gorm.DB, values []string, with url.Values) *gorm.DB {
+	err := gocrud.Setup(group, db, songl.New("crud"), &gocrud.Crud[model.Song]{
+		DisableSave:  true,
+		EnableGetAll: true,
+		SearchHandlers: gocrud.BaseSearchHandlers(gocrud.SearchHandlers{
+			"like_name": gocrud.KeywordLike("name", nil),
+			"in_collectionId": func(db *gorm.DB, values []string, _ *gin.Context) (*gorm.DB, error) {
 				if value, ok := gocrud.PickFirstValuableString(values); ok {
 					ids := gocrud.IDsFromCommaSeparatedString(value)
 					if len(ids) == 0 {
-						return db
+						return nil, gocrud.NotArrayError
 					}
-					return db.Where("id IN (SELECT collection_songs.song_id FROM collection_songs WHERE collection_songs.collection_id IN ?)", ids)
+					return db.Where("id IN (SELECT collection_songs.song_id FROM collection_songs WHERE collection_songs.collection_id IN ?)", ids), nil
 				}
-				return db
+				return db, nil
 			},
-			"keywords": func(db *gorm.DB, values []string, with url.Values) *gorm.DB {
-				if value, ok := gocrud.PickFirstValuableString(values); ok {
-					value = fmt.Sprintf("%%%s%%", value)
-					return db.Where("`name` LIKE ? OR `subtitle` LIKE ?", value, value)
-				}
-				return db
-			},
-			"like_collectionName": func(db *gorm.DB, values []string, with url.Values) *gorm.DB {
+			"keywords": func(db *gorm.DB, values []string, _ *gin.Context) (*gorm.DB, error) {
 				if value, ok := gocrud.PickFirstValuableString(values); ok {
 					value = fmt.Sprintf("%%%s%%", value)
 					return db.Where(
-						`
+						"`name` LIKE ? OR `subtitle` LIKE ? OR "+`
 						id IN (
 							SELECT collection_songs.song_id FROM collection_songs 
 							LEFT JOIN collections ON collection_songs.collection_id = collections.id
@@ -89,20 +75,15 @@ func SetupSongController(group *gin.RouterGroup, db *gorm.DB) error {
 						)`,
 						value,
 						value,
+
 						value,
-					)
+						value,
+						value,
+					), nil
 				}
-				return db
+				return db, nil
 			},
-		},
-		WillGetAll: func(context *gin.Context, db *gorm.DB) *gorm.DB {
-			collectionId := gocrud.IDsFromCommaSeparatedString(context.Query("in_collectionId"))
-			if len(collectionId) == 0 {
-				gocrud.MakeErrorResponse(context, gocrud.RestCoder.BadRequest(), "collectionId not found")
-			}
-			return db
-		},
-		OnDelete: gocrud.NewSoftDeleteHandler[model.Song](gocrud.RestCoder),
+		}),
 		WillSave: func(record *model.Song, context *gin.Context, db *gorm.DB) {
 			record.Name = strings.TrimSpace(record.Name)
 		},
@@ -118,14 +99,14 @@ func SetupSongController(group *gin.RouterGroup, db *gorm.DB) error {
 			return
 		}
 
-		songFormValue := form.Value["song"]
-		if len(songFormValue) == 0 {
-			gocrud.MakeErrorResponse(context, gocrud.RestCoder.BadRequest(), "song field not found")
+		mpRecord := form.Value["record"]
+		if len(mpRecord) == 0 {
+			gocrud.MakeErrorResponse(context, gocrud.RestCoder.BadRequest(), "record data not found")
 			return
 		}
 
 		var song model.Song
-		err = json.Unmarshal([]byte(songFormValue[0]), &song)
+		err = json.Unmarshal([]byte(mpRecord[0]), &song)
 		if err != nil {
 			gocrud.MakeErrorResponse(context, gocrud.RestCoder.BadRequest(), err)
 			return
@@ -138,9 +119,10 @@ func SetupSongController(group *gin.RouterGroup, db *gorm.DB) error {
 		}
 		song.Subtitle = strings.TrimSpace(song.Subtitle)
 
-		songFormFile := form.File["file"]
-		if len(songFormFile) > 0 {
-			songFile, err := songFormFile[0].Open()
+		mpFiles := form.File["file"]
+		if len(mpFiles) > 0 {
+			mpFile := mpFiles[0]
+			songFile, err := mpFile.Open()
 			if err != nil {
 				gocrud.MakeErrorResponse(context, gocrud.RestCoder.BadRequest(), err)
 				return
@@ -149,15 +131,19 @@ func SetupSongController(group *gin.RouterGroup, db *gorm.DB) error {
 				_ = songFile.Close()
 			}()
 
-			filename, digest, err := gocrud.SaveAsDigestedFile(env.StaticFolder, songFormFile[0].Filename, songFile, songFormFile[0].Size, "")
+			dareFile, err := gocrud.SaveDareFile(songFile, &gocrud.SaveDareFileConfig{
+				BaseFolder: env.StaticFolder,
+				Ext:        path.Ext(mpFile.Filename),
+				Length:     gocrud.FileSize(mpFile.Size),
+			})
 			if err != nil {
 				gocrud.MakeErrorResponse(context, gocrud.RestCoder.InternalServerError(), err)
 				return
 			}
-			song.Filename = string(filename)
-			song.Digest = string(digest)
+			song.Filename = string(dareFile.Filename)
+			song.Digest = string(dareFile.Digest)
 
-			fullpath := path.Join(env.StaticFolder, string(filename))
+			fullpath := path.Join(env.StaticFolder, song.Filename)
 
 			mime, err := filetype.MatchFile(fullpath)
 			if err != nil {
@@ -181,18 +167,16 @@ func SetupSongController(group *gin.RouterGroup, db *gorm.DB) error {
 				}
 
 				if len(coverBytes) > 0 {
-					cover, _, err := gocrud.SaveAsDigestedFile(
-						env.StaticFolder,
-						"cover"+ffmpeg.GetExtByCodecName(coverExt),
-						bytes.NewReader(coverBytes),
-						int64(len(coverBytes)),
-						"",
-					)
+					coverFile, err := gocrud.SaveDareFile(bytes.NewReader(coverBytes), &gocrud.SaveDareFileConfig{
+						BaseFolder: env.StaticFolder,
+						Ext:        ffmpeg.GetExtByCodecName(coverExt),
+						Length:     gocrud.FileSize(len(coverBytes)),
+					})
 					if err != nil {
 						gocrud.MakeErrorResponse(context, gocrud.RestCoder.InternalServerError(), err)
 						return
 					}
-					song.Cover = string(cover)
+					song.Cover = string(coverFile.Filename)
 				}
 			}
 		}
@@ -437,4 +421,11 @@ func SetupSongController(group *gin.RouterGroup, db *gorm.DB) error {
 	})
 
 	return nil
+}
+
+func SetupSongLyricsController(group *gin.RouterGroup, db *gorm.DB) error {
+	return gocrud.SetupM2MConnectorController[model.SongLyrics](
+		group, db, songl.New("lyrics"),
+		"SongID", "LyricsID", nil,
+	)
 }

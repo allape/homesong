@@ -44,7 +44,6 @@ export default function LyricsCrudyButton({
   const [form, setForm] = useState<FormInstance<ILyrics> | null>(null);
   const [searchParams, setSearchParams] = useState<ISearchParams>(() => ({
     ...BaseSearchParams,
-    orderBy_priority: "desc",
     orderBy_updatedAt: "desc",
   }));
 
@@ -55,7 +54,7 @@ export default function LyricsCrudyButton({
         dataIndex: "id",
       },
       {
-        title: <span className="nowrap">{t("lyrics.priority")}</span>,
+        title: <span className="nowrap">{t("priority")}</span>,
         dataIndex: "priority",
       },
       {
@@ -161,7 +160,7 @@ export default function LyricsCrudyButton({
         // remove all hidden char
         // .replace(/\s/gi, "");
       } catch (e) {
-        message.warning(`${t("lyrics._")}: ${stringify(e)}`);
+        message.warning(`${t("lyrics._")}: ${stringify(e)}`).then();
         throw e;
       }
 
@@ -171,8 +170,9 @@ export default function LyricsCrudyButton({
   );
 
   return (
-    <CrudyButton
+    <CrudyButton<IRecord, ISearchParams>
       name={t("lyrics._")}
+      titleSearchField="keywords"
       columns={columns}
       crudy={LyricsCrudy}
       searchParams={searchParams}
@@ -184,11 +184,13 @@ export default function LyricsCrudyButton({
       {...props}
       beforeSave={handleBeforeSave}
     >
-      <Form.Item name="priority" label={t("lyrics.priority")}>
+      <Form.Item name="priority" label={t("priority")}>
         <InputNumber
           step={1}
           precision={0}
-          placeholder={t("lyrics.priority")}
+          min={Number.MIN_SAFE_INTEGER}
+          max={Number.MAX_SAFE_INTEGER}
+          placeholder={t("priority")}
         />
       </Form.Item>
       <Form.Item

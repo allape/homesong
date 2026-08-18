@@ -4,29 +4,30 @@ services:
     image: ghcr.io/allape/homesong:main
     container_name: homesong
     restart: unless-stopped
-    ports:
-      - "8080:8080"
     environment:
-      HOME_SONG_DATABASE_DSN: "root:GBlOn0VAmKmMtVGeMBzC@tcp(database:3306)/homesong?charset=utf8mb4&parseTime=True&loc=Local"
+      HOMESONG_DATABASE_DSN: "root:GBlOn0VAmKmMtVGeMBzC@tcp(database:3306)/homesong?charset=utf8mb4&parseTime=True&loc=Local"
     volumes:
       - ./static:/app/static
     networks:
+      - external
       - internal
     depends_on:
       database:
         condition: service_healthy
   database:
-    image: mysql:8.3.0
+    image: allape/autodumpmysql:8
     restart: unless-stopped
     networks:
       - internal
     healthcheck:
-      test: "curl http://127.0.0.1:3306 > /dev/null && exit 0 || exit 1"
+      test: mysql -uroot -p"$$MYSQL_ROOT_PASSWORD" -e "SELECT 1" > /dev/null 2>&1 || exit 1
     environment:
       - MYSQL_ROOT_PASSWORD=GBlOn0VAmKmMtVGeMBzC
       - MYSQL_DATABASE=homesong
     volumes:
       - ./database:/var/lib/mysql
 networks:
+  external:
   internal:
     internal: true
+

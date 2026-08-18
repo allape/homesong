@@ -1,25 +1,14 @@
-import {
-  IBase,
-  IBaseSearchParams,
-  ITimeSortSearchParams,
-  SortType,
-} from "@allape/gocrud";
+import { IBase, IBaseSearchParams } from "@allape/gocrud";
 import { IColoredLV } from "@allape/gocrud-react";
 import { useMemo } from "react";
 import { useTranslation } from "react-i18next";
 import { ISong } from "./song.ts";
 
 export type CollectionType =
-  | "playlist"
-  | "artist"
-  | "album"
-  | "language"
-  | "ost"
-  | "opera";
+  "playlist" | "artist" | "album" | "language" | "ost" | "opera";
 
 export interface ICollection extends IBase {
   type: CollectionType;
-  priority: number;
   cover: string;
   name: string;
   keywords: string;
@@ -27,14 +16,9 @@ export interface ICollection extends IBase {
   description: string;
 }
 
-export interface ICollectionSearchParams
-  extends
-    IBaseSearchParams,
-    Pick<ITimeSortSearchParams, "orderBy_createdAt" | "orderBy_updatedAt"> {
-  in_id?: ICollection["id"][];
+export interface ICollectionSearchParams extends IBaseSearchParams {
   in_type?: ICollection["type"][];
   keywords?: string;
-  orderBy_priority?: SortType;
 }
 
 export function useCollectionTypes(): IColoredLV<CollectionType>[] {
@@ -90,13 +74,7 @@ export const NonArtistCollectionTypes: CollectionType[] =
   );
 
 export type Role =
-  | "singer"
-  | "lyricist"
-  | "composer"
-  | "arranger"
-  | "producer"
-  | "other"
-  | "_";
+  "singer" | "lyricist" | "composer" | "arranger" | "producer" | "other" | "_";
 
 export interface ICollectionSong extends Pick<IBase, "createdAt"> {
   songId: ISong["id"];
@@ -104,8 +82,17 @@ export interface ICollectionSong extends Pick<IBase, "createdAt"> {
   role: Role;
 }
 
-export interface ICollectionSongSearchParams extends IBaseSearchParams {
-  in_songId?: ISong["id"][];
-  in_collectionId?: ICollection["id"][];
-  in_role?: Role[];
+export function FromCollectionIds(
+  collectionIds: ICollectionSong["collectionId"][],
+  songId: ICollectionSong["songId"],
+  role: Role,
+): ICollectionSong[] {
+  return collectionIds.map(
+    (ci) =>
+      ({
+        collectionId: ci,
+        songId,
+        role,
+      }) as ICollectionSong,
+  );
 }
