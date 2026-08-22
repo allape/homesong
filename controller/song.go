@@ -134,13 +134,13 @@ func SetupSongController(group *gin.RouterGroup, db *gorm.DB) error {
 			dareFile, err := gocrud.SaveDareFile(songFile, &gocrud.SaveDareFileConfig{
 				BaseFolder: env.StaticFolder,
 				Ext:        path.Ext(mpFile.Filename),
-				Length:     gocrud.FileSize(mpFile.Size),
+				Size:       gocrud.FileSize(mpFile.Size),
 			})
 			if err != nil {
 				gocrud.MakeErrorResponse(context, gocrud.RestCoder.InternalServerError(), err)
 				return
 			}
-			song.Filename = string(dareFile.Filename)
+			song.Filename = string(dareFile.Name)
 			song.Digest = string(dareFile.Digest)
 
 			fullpath := path.Join(env.StaticFolder, song.Filename)
@@ -170,13 +170,13 @@ func SetupSongController(group *gin.RouterGroup, db *gorm.DB) error {
 					coverFile, err := gocrud.SaveDareFile(bytes.NewReader(coverBytes), &gocrud.SaveDareFileConfig{
 						BaseFolder: env.StaticFolder,
 						Ext:        ffmpeg.GetExtByCodecName(coverExt),
-						Length:     gocrud.FileSize(len(coverBytes)),
+						Size:       gocrud.FileSize(len(coverBytes)),
 					})
 					if err != nil {
 						gocrud.MakeErrorResponse(context, gocrud.RestCoder.InternalServerError(), err)
 						return
 					}
-					song.Cover = string(coverFile.Filename)
+					song.Cover = string(coverFile.Name)
 				}
 			}
 		}

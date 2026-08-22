@@ -3,7 +3,7 @@ module github.com/allape/homesong
 go 1.25.0
 
 require (
-	github.com/allape/gocrud v0.0.0-20260816083743-438e388f7ce7
+	github.com/allape/gocrud v0.0.0-20260822083733-1d8fed739100
 	github.com/allape/goenv v0.0.0-20241202051618-ce41afb81ebf
 	github.com/allape/gogger v1.0.0
 	github.com/gin-gonic/gin v1.12.0
