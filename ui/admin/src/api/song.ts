@@ -97,7 +97,12 @@ export async function fillSongsWithCollections(
 
         if (!(["_", "singer"] as Role[]).includes(role as Role)) {
           collections.forEach((collection) => {
-            if (!nonSingers.find((ns) => ns.id === collection.id)) {
+            if (
+              !song._collectionSets?.singer?.find(
+                (s) => s.id === collection.id,
+              ) &&
+              !nonSingers.find((ns) => ns.id === collection.id)
+            ) {
               nonSingers.push(collection);
             }
           });
