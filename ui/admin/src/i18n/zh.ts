@@ -13,6 +13,7 @@ const TranslationZh: typeof TranslationEn = {
     updatedAt: "更新时间",
     continuesUpload: "持续性上传",
     keepCover: "保留封面",
+    keepArtists: "保留艺术家们",
     created: "已创建",
     createArtistsFast: "快速创建",
     createArtistsFastTips:

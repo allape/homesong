@@ -33,7 +33,7 @@ export default function WordInput({
     }
 
     let values = value
-      .split(splitter || /[-|,.、/&]+/)
+      .split(splitter || /[-_|,.、/&]+/)
       .map((i) => i.trim())
       .filter((i) => !!i);
 

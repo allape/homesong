@@ -1,6 +1,7 @@
 import Crudy, {
   antdget,
   AntdM2MConnectorHandler,
+  antdupload,
   config,
 } from "@allape/gocrud-react";
 import { ICollection, Role } from "../model/collection.ts";
@@ -145,4 +146,11 @@ export async function getLyrics(id: ISong["id"]): Promise<ILyrics[]> {
     `${config.SERVER_URL}/song/lyrics/${id}`,
   );
   return lyrics || [];
+}
+
+export function uploadCover(file: File): Promise<string> {
+  return antdupload(
+    `${config.SERVER_STATIC_URL}/${encodeURIComponent(file.name)}`,
+    file,
+  );
 }

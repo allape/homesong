@@ -13,7 +13,7 @@ import {
   Uploader,
   useMobile,
 } from "@allape/gocrud-react";
-import { useProxy } from "@allape/use-loading";
+import { useLoading, useProxy } from "@allape/use-loading";
 import {
   CustomerServiceOutlined,
   DownloadOutlined,
@@ -32,6 +32,7 @@ import {
   InputNumber,
   MenuProps,
   ModalProps,
+  Spin,
   Switch,
   TableColumnsType,
   Tag,
@@ -60,6 +61,7 @@ import {
   SongCrudy,
   SongLyricsHandler,
   upload,
+  uploadCover,
 } from "../../api/song.ts";
 import CollectionCrudyButton from "../../component/CollectionCrudyButton";
 import CollectionSelector, {
@@ -93,6 +95,7 @@ const LyricsCrudyButtonModalProps: ModalProps = {
 interface IRecord extends ISongModified {
   _continuesUpload?: boolean;
   _keepCover?: boolean;
+  _keepArtists?: boolean;
 
   _file?: File;
   _lyricsIds?: ILyrics["id"][];
@@ -121,6 +124,7 @@ const CensoredStyle: CSSProperties = {
 export default function Song(): ReactElement {
   const { t } = useTranslation();
   const { message } = App.useApp();
+  const { loading: filesLoading, execute: filesExecute } = useLoading();
 
   const CollectionCrudyEmitter = useMemo(
     () => NewCrudyButtonEventEmitter<ICollection>(),
@@ -139,6 +143,7 @@ export default function Song(): ReactElement {
   const isMobile = useMobile();
 
   const fileRef = useRef<File | undefined>();
+  const lyricsRef = useRef<string>();
 
   const [searchParams, setSearchParams] = useState<ISearchParams>(() => ({
     ...BaseSearchParams,
@@ -330,6 +335,7 @@ export default function Song(): ReactElement {
     );
 
     fileRef.current = undefined;
+    lyricsRef.current = undefined;
 
     await CollectionSongHandler.saveAfterDelete("songId", song.id, [
       ...FromCollectionIds(record._nonArtistIds || [], song.id, "_"),
@@ -355,17 +361,44 @@ export default function Song(): ReactElement {
 
   const handleFileChange = useCallback(
     (e: ChangeEvent<HTMLInputElement>) => {
-      if (!form) {
+      if (!form || !e.target.files?.length) {
         return;
       }
 
-      fileRef.current = e.target.files?.[0];
+      for (let i = 0; i < e.target.files.length; i++) {
+        const file = e.target.files[i];
 
-      if (fileRef.current && !form.getFieldValue("name")) {
-        form.setFieldValue("name", fileRef.current.name);
+        if (file.type.startsWith("image")) {
+          filesExecute(async () => {
+            const coverURL = await uploadCover(file);
+            form.setFieldValue("cover", coverURL);
+          }).then();
+          continue;
+        }
+
+        if (file.type.startsWith("audio") || file.type.startsWith("video")) {
+          fileRef.current = file;
+          if (!form.getFieldValue("name")) {
+            form.setFieldValue("name", fileRef.current.name);
+          }
+          continue;
+        }
+
+        if (file.type.startsWith("text") || file.name.endsWith(".lrc")) {
+          filesExecute(async () => {
+            lyricsRef.current = await file.text();
+          }).then();
+          continue;
+        }
+
+        console.log(file.name, "no match op");
+      }
+
+      if (!fileRef.current) {
+        e.target.value = "";
       }
     },
-    [form],
+    [filesExecute, form],
   );
 
   const menus = useMemo<MenuProps["items"]>(
@@ -419,10 +452,21 @@ export default function Song(): ReactElement {
     form.setFieldsValue({
       _continuesUpload: true,
       _keepCover: value._keepCover,
+      _keepArtists: value._keepArtists,
       _nonArtistIds: value._nonArtistIds,
 
       description: value.description,
       cover: value._keepCover ? value.cover : undefined,
+      ...(value._keepArtists
+        ? {
+            _singerIds: value._singerIds,
+            _lyricistIds: value._lyricistIds,
+            _composerIds: value._composerIds,
+            _arrangerIds: value._arrangerIds,
+            _producerIds: value._producerIds,
+            _otherIds: value._otherIds,
+          }
+        : undefined),
     });
 
     return false;
@@ -499,6 +543,7 @@ export default function Song(): ReactElement {
       },
       onCancel: () => {
         fileRef.current = undefined;
+        lyricsRef.current = undefined;
       },
     }),
     [isMobile],
@@ -533,6 +578,7 @@ export default function Song(): ReactElement {
 
       LyricsCrudyEmitter.dispatchEvent("open-save-form", {
         name: `${songName}${signersNames ? ` - ${signersNames}` : ""}`,
+        content: lyricsRef.current || "",
       } as ILyrics);
 
       LyricsCrudyEmitter.addEventListener(
@@ -700,7 +746,7 @@ export default function Song(): ReactElement {
         }
       >
         {(record) => (
-          <>
+          <Spin spinning={filesLoading}>
             <Flex alignItems="center" justifyContent="flex-start">
               {t("continuesUpload")}:{" "}
               <Form.Item
@@ -712,6 +758,10 @@ export default function Song(): ReactElement {
               </Form.Item>
               {t("keepCover")}:{" "}
               <Form.Item noStyle name="_keepCover">
+                <Switch />
+              </Form.Item>
+              {t("keepArtists")}:{" "}
+              <Form.Item noStyle name="_keepArtists">
                 <Switch />
               </Form.Item>
             </Flex>
@@ -746,11 +796,7 @@ export default function Song(): ReactElement {
                 },
               ]}
             >
-              <Input
-                type="file"
-                accept="audio/*,video/*"
-                onChange={handleFileChange}
-              />
+              <Input type="file" multiple onChange={handleFileChange} />
             </Form.Item>
 
             <Form.Item name="priority" label={t("priority")}>
@@ -969,7 +1015,7 @@ export default function Song(): ReactElement {
                 placeholder={t("song.description")}
               />
             </Form.Item>
-          </>
+          </Spin>
         )}
       </CrudyTable>
       {playerVisible && (
