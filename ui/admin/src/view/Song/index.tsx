@@ -1,4 +1,4 @@
-import { BaseSearchParams, IBase } from "@allape/gocrud";
+import { BaseSearchParams, IBase, stringify } from "@allape/gocrud";
 import {
   asDefaultPattern,
   config,
@@ -24,6 +24,7 @@ import {
   App,
   Avatar,
   Button,
+  Col,
   Divider,
   Dropdown,
   Form,
@@ -32,12 +33,14 @@ import {
   InputNumber,
   MenuProps,
   ModalProps,
+  Row,
   Spin,
   Switch,
   TableColumnsType,
   Tag,
   Tooltip,
 } from "antd";
+import type { Breakpoint } from "antd/es/_util/responsiveObserver";
 import cls from "classnames";
 import {
   ChangeEvent,
@@ -88,6 +91,13 @@ import { ILyrics } from "../../model/lyrics.ts";
 import { ISongSearchParams } from "../../model/song.ts";
 import styles from "./style.module.scss";
 
+const CleanerRegExp = /\[[^\]]+]/g;
+
+const FormColConfig: Partial<Record<Breakpoint, number>> = {
+  sm: 12,
+  xs: 24,
+};
+
 const LyricsCrudyButtonModalProps: ModalProps = {
   forceRender: true,
 };
@@ -111,6 +121,10 @@ interface IRecord extends ISongModified {
   _composerIds?: ICollection["id"][];
   _arrangerIds?: ICollection["id"][];
   _producerIds?: ICollection["id"][];
+
+  /**
+   * @deprecated
+   */
   _otherIds?: ICollection["id"][];
 }
 
@@ -539,6 +553,7 @@ export default function Song(): ReactElement {
         body: {
           maxHeight: isMobile ? "calc(100dvh - 120px)" : "calc(100dvh - 150px)",
           overflowY: "auto",
+          overflowX: "hidden",
         },
       },
       onCancel: () => {
@@ -689,6 +704,16 @@ export default function Song(): ReactElement {
     window.open(u.toString());
   }, [form]);
 
+  const handleCopyText = useCallback(
+    (text: string) => {
+      navigator.clipboard
+        ?.writeText(text)
+        .then(() => message.success(t("gocrud.copied")))
+        .catch((e) => message.error(stringify(e)));
+    },
+    [message, t],
+  );
+
   return (
     <>
       <CrudyTable<IRecord, ISearchParams>
@@ -821,7 +846,7 @@ export default function Song(): ReactElement {
               <WordInput
                 maxLength={200}
                 placeholder={t("song.name")}
-                onAuxChange={handleCreateArtist}
+                onTagAuxClick={handleCreateArtist}
               />
             </Form.Item>
 
@@ -847,88 +872,99 @@ export default function Song(): ReactElement {
                 placeholder={t("collection.artistTypes.singer")}
               />
             </Form.Item>
-            <Form.Item
-              name="_lyricistIds"
-              label={
-                <Flex>
-                  {t("collection.artistTypes.lyricist")}
-                  <Divider type="vertical" />
-                  <Button
-                    type="link"
-                    onClick={() => handleCreateArtist("", "_lyricistIds")}
-                  >
-                    {t("createArtistsFast")}
-                  </Button>
-                </Flex>
-              }
-            >
-              <ArtistSelector
-                mode="multiple"
-                placeholder={t("collection.artistTypes.lyricist")}
-              />
-            </Form.Item>
-            <Form.Item
-              name="_composerIds"
-              label={
-                <Flex>
-                  {t("collection.artistTypes.composer")}
-                  <Divider type="vertical" />
-                  <Button
-                    type="link"
-                    onClick={() => handleCreateArtist("", "_composerIds")}
-                  >
-                    {t("createArtistsFast")}
-                  </Button>
-                </Flex>
-              }
-            >
-              <ArtistSelector
-                mode="multiple"
-                placeholder={t("collection.artistTypes.composer")}
-              />
-            </Form.Item>
-            <Form.Item
-              name="_arrangerIds"
-              label={
-                <Flex>
-                  {t("collection.artistTypes.arranger")}
-                  <Divider type="vertical" />
-                  <Button
-                    type="link"
-                    onClick={() => handleCreateArtist("", "_arrangerIds")}
-                  >
-                    {t("createArtistsFast")}
-                  </Button>
-                </Flex>
-              }
-            >
-              <ArtistSelector
-                mode="multiple"
-                placeholder={t("collection.artistTypes.arranger")}
-              />
-            </Form.Item>
-            <Form.Item
-              name="_producerIds"
-              label={
-                <Flex>
-                  {t("collection.artistTypes.producer")}
-                  <Divider type="vertical" />
-                  <Button
-                    type="link"
-                    onClick={() => handleCreateArtist("", "_producerIds")}
-                  >
-                    {t("createArtistsFast")}
-                  </Button>
-                </Flex>
-              }
-            >
-              <ArtistSelector
-                mode="multiple"
-                placeholder={t("collection.artistTypes.producer")}
-              />
-            </Form.Item>
+            <Row gutter={10}>
+              <Col {...FormColConfig}>
+                <Form.Item
+                  name="_lyricistIds"
+                  label={
+                    <Flex>
+                      {t("collection.artistTypes.lyricist")}
+                      <Divider type="vertical" />
+                      <Button
+                        type="link"
+                        onClick={() => handleCreateArtist("", "_lyricistIds")}
+                      >
+                        {t("createArtistsFast")}
+                      </Button>
+                    </Flex>
+                  }
+                >
+                  <ArtistSelector
+                    mode="multiple"
+                    placeholder={t("collection.artistTypes.lyricist")}
+                  />
+                </Form.Item>
+              </Col>
+              <Col {...FormColConfig}>
+                <Form.Item
+                  name="_composerIds"
+                  label={
+                    <Flex>
+                      {t("collection.artistTypes.composer")}
+                      <Divider type="vertical" />
+                      <Button
+                        type="link"
+                        onClick={() => handleCreateArtist("", "_composerIds")}
+                      >
+                        {t("createArtistsFast")}
+                      </Button>
+                    </Flex>
+                  }
+                >
+                  <ArtistSelector
+                    mode="multiple"
+                    placeholder={t("collection.artistTypes.composer")}
+                  />
+                </Form.Item>
+              </Col>
+              <Col {...FormColConfig}>
+                <Form.Item
+                  name="_arrangerIds"
+                  label={
+                    <Flex>
+                      {t("collection.artistTypes.arranger")}
+                      <Divider type="vertical" />
+                      <Button
+                        type="link"
+                        onClick={() => handleCreateArtist("", "_arrangerIds")}
+                      >
+                        {t("createArtistsFast")}
+                      </Button>
+                    </Flex>
+                  }
+                >
+                  <ArtistSelector
+                    mode="multiple"
+                    placeholder={t("collection.artistTypes.arranger")}
+                  />
+                </Form.Item>
+              </Col>
+              <Col {...FormColConfig}>
+                <Form.Item
+                  name="_producerIds"
+                  label={
+                    <Flex>
+                      {t("collection.artistTypes.producer")}
+                      <Divider type="vertical" />
+                      <Button
+                        type="link"
+                        onClick={() => handleCreateArtist("", "_producerIds")}
+                      >
+                        {t("createArtistsFast")}
+                      </Button>
+                    </Flex>
+                  }
+                >
+                  <ArtistSelector
+                    mode="multiple"
+                    placeholder={t("collection.artistTypes.producer")}
+                  />
+                </Form.Item>
+              </Col>
+            </Row>
             <Form.Item
               name="_otherIds"
+              hidden
               label={
                 <Flex>
                   {t("collection.artistTypes.other")}
@@ -1009,10 +1045,12 @@ export default function Song(): ReactElement {
             </Form.Item>
 
             <Form.Item name="description" label={t("song.description")}>
-              <Input.TextArea
+              <WordInput
                 rows={10}
                 maxLength={20000}
                 placeholder={t("song.description")}
+                cleaner={CleanerRegExp}
+                onTagClick={(text) => handleCopyText(text)}
               />
             </Form.Item>
           </Spin>

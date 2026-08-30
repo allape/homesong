@@ -1,4 +1,5 @@
-import { Input, InputProps, Tag } from "antd";
+import { Input, Tag } from "antd";
+import { TextAreaProps } from "antd/es/input";
 import {
   MouseEvent,
   ReactElement,
@@ -7,21 +8,27 @@ import {
   useState,
 } from "react";
 
-export interface IWordInputProps
-  extends Omit<InputProps, "value" | "onChange"> {
+export interface IWordInputProps extends Omit<
+  TextAreaProps,
+  "value" | "onChange"
+> {
   value?: string;
+  onChange?: (value?: string) => void;
+  cleaner?: RegExp;
   splitter?: RegExp;
   capitalize?: boolean;
-  onChange?: (value?: string) => void;
-  onAuxChange?: (value: string) => void;
+  onTagClick?: (value: string) => void;
+  onTagAuxClick?: (value: string) => void;
 }
 
 export default function WordInput({
   value,
+  cleaner,
   splitter,
   capitalize = true,
   onChange,
-  onAuxChange,
+  onTagClick,
+  onTagAuxClick,
   ...props
 }: IWordInputProps): ReactElement {
   const [words, setWords] = useState<string[]>([]);
@@ -32,8 +39,14 @@ export default function WordInput({
       return;
     }
 
-    let values = value
-      .split(splitter || /[-_|,.、/&]+/)
+    let v = value;
+
+    if (cleaner) {
+      v = v.replace(cleaner, "");
+    }
+
+    let values = v
+      .split(splitter || /[-_|,，.、/&:：\n]+/)
       .map((i) => i.trim())
       .filter((i) => !!i);
 
@@ -53,29 +66,30 @@ export default function WordInput({
       }
       return words;
     });
-  }, [capitalize, splitter, value]);
+  }, [capitalize, cleaner, splitter, value]);
 
   const handleContextMenuCapture = useCallback(
     (e: MouseEvent<HTMLSpanElement>, word: string) => {
       e.preventDefault();
       e.stopPropagation();
-      onAuxChange?.(word);
+      onTagAuxClick?.(word);
     },
-    [onAuxChange],
+    [onTagAuxClick],
   );
 
   return (
     <>
-      <Input
+      <Input.TextArea
         value={value}
         onChange={(e) => onChange?.(e.target.value)}
+        rows={1}
         {...props}
       />
       <div style={{ paddingTop: "5px" }}>
         {words.map((word) => (
           <Tag
             key={word}
-            onClick={() => onChange?.(word)}
+            onClick={() => (onTagClick || onChange)?.(word)}
             onContextMenuCapture={(e) => handleContextMenuCapture(e, word)}
             style={{ cursor: "pointer" }}
           >
