@@ -9,6 +9,7 @@ import (
 	"github.com/allape/gocrud"
 	"github.com/allape/homesong/model"
 	"github.com/gin-gonic/gin"
+	"golang.org/x/text/unicode/norm"
 	"gorm.io/gorm"
 )
 
@@ -44,6 +45,8 @@ func SetupCollectionController(group *gin.RouterGroup, db *gorm.DB) error {
 				gocrud.MakeErrorResponse(context, gocrud.RestCoder.BadRequest(), "type is invalid")
 				return
 			}
+
+			record.Name = norm.NFC.String(record.Name)
 
 			var exist model.Collection
 			if err := db.Model(&exist).Where("`name` = ? AND `type` = ?", record.Name, record.Type).First(&exist).Error; err == nil && exist.ID != record.ID {

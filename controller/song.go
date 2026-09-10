@@ -21,6 +21,7 @@ import (
 	"github.com/allape/homesong/model"
 	"github.com/gin-gonic/gin"
 	"github.com/h2non/filetype"
+	"golang.org/x/text/unicode/norm"
 	"gorm.io/gorm"
 )
 
@@ -117,7 +118,8 @@ func SetupSongController(group *gin.RouterGroup, db *gorm.DB) error {
 			gocrud.MakeErrorResponse(context, gocrud.RestCoder.BadRequest(), "name cannot be empty")
 			return
 		}
-		song.Subtitle = strings.TrimSpace(song.Subtitle)
+		song.Name = norm.NFC.String(song.Name)
+		song.Subtitle = norm.NFC.String(strings.TrimSpace(song.Subtitle))
 
 		mpFiles := form.File["file"]
 		if len(mpFiles) > 0 {
