@@ -85,9 +85,6 @@ func SetupSongController(group *gin.RouterGroup, db *gorm.DB) error {
 				return db, nil
 			},
 		}),
-		WillSave: func(record *model.Song, context *gin.Context, db *gorm.DB) {
-			record.Name = strings.TrimSpace(record.Name)
-		},
 	})
 	if err != nil {
 		return err

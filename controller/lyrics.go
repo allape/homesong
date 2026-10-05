@@ -8,6 +8,7 @@ import (
 	"github.com/allape/gocrud"
 	"github.com/allape/homesong/model"
 	"github.com/gin-gonic/gin"
+	"golang.org/x/text/unicode/norm"
 	"gorm.io/gorm"
 )
 
@@ -28,7 +29,8 @@ func SetupLyricsController(group *gin.RouterGroup, db *gorm.DB) error {
 			},
 		}),
 		WillSave: func(record *model.Lyrics, context *gin.Context, db *gorm.DB) {
-			record.Name = strings.TrimSpace(record.Name)
+			record.Name = norm.NFC.String(strings.TrimSpace(record.Name))
+			record.SearchText = norm.NFC.String(strings.TrimSpace(record.SearchText))
 		},
 	})
 	if err != nil {

@@ -34,8 +34,8 @@ func SetupCollectionController(group *gin.RouterGroup, db *gorm.DB) error {
 			"in_type": gocrud.KeywordIn("type", nil),
 		}),
 		WillSave: func(record *model.Collection, context *gin.Context, db *gorm.DB) {
-			record.Name = strings.TrimSpace(record.Name)
-			record.Keywords = strings.TrimSpace(record.Keywords)
+			record.Name = norm.NFC.String(strings.TrimSpace(record.Name))
+			record.Keywords = norm.NFC.String(strings.TrimSpace(record.Keywords))
 			record.Type = model.CollectionType(strings.TrimSpace(string(record.Type)))
 
 			if record.Type == "" {
